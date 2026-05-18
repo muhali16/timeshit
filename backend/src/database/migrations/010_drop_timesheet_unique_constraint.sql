@@ -1,0 +1,1 @@
+ALTER TABLE timesheets DROP CONSTRAINT IF EXISTS timesheets_user_id_entry_date_start_time_end_time_location_key;

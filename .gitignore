@@ -57,6 +57,9 @@ logs/
 *.sql.gz
 *.dump
 
+# Keep migration files
+!/backend/src/database/migrations/*.sql
+
 # -----------------------------------------------------------------------------
 # SSL / Certificates (if stored locally)
 # -----------------------------------------------------------------------------
