@@ -131,7 +131,7 @@ class TimesheetController {
         message =
           "Sudah ada entry timesheet dengan tanggal, jam, dan lokasi yang sama";
         status = 409;
-      } else if (error.message?.includes("Failed query") || error.code) {
+      } else if (error.message?.includes("Failed query")) {
         message = "Gagal menyimpan data ke database";
       }
 
@@ -139,14 +139,6 @@ class TimesheetController {
         success: false,
         message,
         error: error.message,
-        debug: {
-          code: error.code || null,
-          detail: error.detail || null,
-          constraint: error.constraint || null,
-          schema: error.schema || null,
-          table: error.table || null,
-          column: error.column || null,
-        },
       });
     }
   }
