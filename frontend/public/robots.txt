@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /uploads/
+Disallow: /internal/
+
+Sitemap: https://timeshit.app/sitemap.xml

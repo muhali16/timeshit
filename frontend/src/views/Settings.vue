@@ -788,7 +788,7 @@
                 Install Aplikasi
               </h2>
               <p class="text-text-tertiary text-xs mt-1">
-                Pasang TimeFlow ke perangkat untuk akses cepat
+                Pasang TimeShit ke perangkat untuk akses cepat
               </p>
             </div>
             <button

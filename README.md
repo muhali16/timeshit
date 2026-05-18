@@ -1,4 +1,4 @@
-# TimeFlow - Timesheet App
+# TimeShit - Timesheet App
 
 Aplikasi timesheet modern berbasis PWA (Progressive Web App) untuk pencatatan jam kerja harian dengan fitur upload evidence ke Google Drive, dashboard analytics, export Excel, dan push notification reminder.
 
@@ -31,7 +31,7 @@ Aplikasi timesheet modern berbasis PWA (Progressive Web App) untuk pencatatan ja
 - **Timesheet Entry** — Form input tanggal, waktu mulai/akhir, lokasi, aktivitas, dan upload multiple file evidence.
 - **Dashboard & Insights** — Real-time daily/weekly/monthly breakdown dengan chart.
 - **Export Excel** — Generate file `.xlsx` dengan format profesional.
-- **Google Drive Integration** — File evidence auto-upload ke folder terstruktur (`/TimeFlow/Timesheet/YYYY/MM/DD/`).
+- **Google Drive Integration** — File evidence auto-upload ke folder terstruktur (`/TimeShit/Timesheet/YYYY/MM/DD/`).
 - **Push Notification (FCM)** — Daily reminder via Firebase Cloud Messaging.
 - **PWA Support** — Dapat di-install di home screen Android/iOS, berjalan offline dengan caching.
 - **Dark Mode UI** — Modern interface dengan Tailwind CSS, responsive untuk desktop & mobile.
@@ -413,7 +413,7 @@ sudo nano /etc/systemd/system/timeflow.service
 
 ```ini
 [Unit]
-Description=TimeFlow API Server
+Description=TimeShit API Server
 After=network.target postgresql.service
 
 [Service]
@@ -455,7 +455,7 @@ sudo systemctl status timeflow
 
 ### 2. Google Drive Folder
 
-1. Buat folder di Google Drive (contoh: `TimeFlow Evidence`)
+1. Buat folder di Google Drive (contoh: `TimeShit Evidence`)
 2. Ambil **Folder ID** dari URL: `https://drive.google.com/drive/folders/{FOLDER_ID}`
 3. Masukkan ke `.env` sebagai `GOOGLE_DRIVE_FOLDER_ID`
 
@@ -548,7 +548,7 @@ onMessage(messaging, (payload) => {
 1. Buka `https://timeflow.yourdomain.com` di Chrome
 2. Tap menu (⋮) → **Add to Home screen**
 3. Tap **Install**
-4. Aplikasi akan muncul di launcher dengan icon TimeFlow
+4. Aplikasi akan muncul di launcher dengan icon TimeShit
 
 ### Cara Install di iOS (Safari)
 
