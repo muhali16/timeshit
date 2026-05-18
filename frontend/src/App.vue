@@ -1,147 +1,175 @@
 <template>
-  <div class="min-h-screen text-text-primary pb-nav-safe md:pb-0">
-    <!-- Mobile Header -->
-    <header class="md:hidden sticky top-0 z-40 glass border-b-0 safe-area-top">
-      <div
-        class="max-w-4xl mx-auto px-4 min-h-14 flex items-center justify-between"
-      >
-        <div class="flex items-center gap-2.5">
-          <div
-            class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center shadow-lg shadow-accent/20"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="w-4.5 h-4.5 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2.5"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-          <span class="text-lg font-bold text-text-primary tracking-tight"
-            >TimeShit</span
-          >
-        </div>
-
-        <!-- Mobile Profile -->
-        <div class="relative" ref="profileDropdown">
-          <button
-            @click="profileOpen = !profileOpen"
-            class="flex items-center gap-1.5 p-1.5 rounded-xl transition-all active:scale-95"
-          >
-            <img
-              v-if="authStore.user?.avatar && !mobileAvatarError"
-              :src="authStore.user.avatar"
-              :alt="authStore.user.name"
-              class="w-7 h-7 rounded-full object-cover ring-2 ring-accent/30"
-              @error="mobileAvatarError = true"
-            />
-            <div
-              v-if="!authStore.user?.avatar || mobileAvatarError"
-              class="w-7 h-7 rounded-full bg-accent/15 flex items-center justify-center ring-2 ring-accent/20"
-            >
-              <span class="text-accent font-bold text-xs">{{
-                (authStore.user?.name || "?")[0]?.toUpperCase()
-              }}</span>
-            </div>
-          </button>
-
-          <div
-            v-if="profileOpen"
-            class="absolute right-0 mt-2 w-48 glass-strong rounded-2xl shadow-2xl overflow-hidden z-50 animate-float-in"
-          >
-            <div class="px-3.5 py-2.5 border-b border-white/10">
-              <p class="text-sm font-medium text-text-primary truncate">
-                {{ authStore.user?.name }}
-              </p>
-              <p class="text-xs text-text-tertiary truncate">
-                {{ authStore.user?.email }}
-              </p>
-            </div>
-            <router-link
-              to="/settings"
-              @click="profileOpen = false"
-              class="flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-text-secondary hover:bg-white/5 transition-colors"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-4 h-4 text-accent"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                />
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-              Settings
-            </router-link>
-            <button
-              @click="handleLogout"
-              class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-danger hover:bg-danger/10 transition-colors"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                />
-              </svg>
-              Logout
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- Warning Banner -->
-    <div
-      v-if="authStore.isLoggedIn && !authStore.hasFolderId"
-      class="bg-warning/10 border-b border-warning/20 px-4 py-2.5 md:hidden"
-    >
-      <div class="max-w-4xl mx-auto flex items-center gap-2">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-4 h-4 text-warning flex-shrink-0"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
+  <div class="min-h-screen text-text-primary md:pb-0">
+    <!-- Mobile Layout Wrapper -->
+    <div class="md:hidden flex flex-col fixed inset-0 z-0 overflow-hidden">
+      <!-- Mobile Header -->
+      <header class="flex-shrink-0 z-40 glass border-b-0 safe-area-top">
+        <div
+          class="max-w-4xl mx-auto px-4 min-h-14 flex items-center justify-between"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-          />
-        </svg>
-        <p class="text-xs text-warning">
-          Google Drive folder belum diatur.
-          <router-link to="/settings" class="underline font-semibold"
-            >Atur di Settings</router-link
+          <div class="flex items-center gap-2.5">
+            <div
+              class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center shadow-lg shadow-accent/20"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-4.5 h-4.5 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <span class="text-lg font-bold text-text-primary tracking-tight"
+              >TimeShit</span
+            >
+          </div>
+
+          <!-- Mobile Profile -->
+          <div class="relative" ref="profileDropdown">
+            <button
+              @click="profileOpen = !profileOpen"
+              class="flex items-center gap-1.5 p-1.5 rounded-xl transition-all active:scale-95"
+            >
+              <img
+                v-if="authStore.user?.avatar && !mobileAvatarError"
+                :src="authStore.user.avatar"
+                :alt="authStore.user.name"
+                class="w-7 h-7 rounded-full object-cover ring-2 ring-accent/30"
+                @error="mobileAvatarError = true"
+              />
+              <div
+                v-if="!authStore.user?.avatar || mobileAvatarError"
+                class="w-7 h-7 rounded-full bg-accent/15 flex items-center justify-center ring-2 ring-accent/20"
+              >
+                <span class="text-accent font-bold text-xs">{{
+                  (authStore.user?.name || "?")[0]?.toUpperCase()
+                }}</span>
+              </div>
+            </button>
+
+            <div
+              v-if="profileOpen"
+              class="absolute right-0 mt-2 w-48 glass-strong rounded-2xl shadow-2xl overflow-hidden z-50 animate-float-in"
+            >
+              <div class="px-3.5 py-2.5 border-b border-white/10">
+                <p class="text-sm font-medium text-text-primary truncate">
+                  {{ authStore.user?.name }}
+                </p>
+                <p class="text-xs text-text-tertiary truncate">
+                  {{ authStore.user?.email }}
+                </p>
+              </div>
+              <router-link
+                to="/settings"
+                @click="profileOpen = false"
+                class="flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-text-secondary hover:bg-white/5 transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-4 h-4 text-accent"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                Settings
+              </router-link>
+              <button
+                @click="handleLogout"
+                class="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-danger hover:bg-danger/10 transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
+                </svg>
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Warning Banner -->
+      <div
+        v-if="authStore.isLoggedIn && !authStore.hasFolderId"
+        class="flex-shrink-0 bg-warning/10 border-b border-warning/20 px-4 py-2.5"
+      >
+        <div class="max-w-4xl mx-auto flex items-center gap-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-4 h-4 text-warning flex-shrink-0"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
           >
-        </p>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+            />
+          </svg>
+          <p class="text-xs text-warning">
+            Google Drive folder belum diatur.
+            <router-link to="/settings" class="underline font-semibold"
+              >Atur di Settings</router-link
+            >
+          </p>
+        </div>
       </div>
+
+      <!-- Mobile Content Area -->
+      <main class="flex-1 overflow-y-auto w-full">
+        <div class="max-w-4xl mx-auto px-4 py-5 pb-28">
+          <router-view />
+        </div>
+      </main>
+
+      <!-- Mobile Bottom Navigation -->
+      <nav class="flex-shrink-0 z-40 glass border-t-0">
+        <div class="flex items-center justify-around h-16 max-w-4xl mx-auto">
+          <router-link
+            v-for="item in bottomNavItems"
+            :key="item.path"
+            :to="item.path"
+            :class="[
+              'flex flex-col items-center justify-center gap-0.5 w-16 h-full transition-all duration-300 active:scale-90',
+              $route.path === item.path ? 'text-accent' : 'text-text-tertiary',
+            ]"
+          >
+            <component :is="item.icon" :active="$route.path === item.path" />
+            <span class="text-[10px] font-medium">{{ item.label }}</span>
+          </router-link>
+        </div>
+      </nav>
     </div>
 
     <!-- Desktop Layout: Floating Sidebar + Content -->
@@ -304,31 +332,6 @@
         </div>
       </main>
     </div>
-
-    <!-- Mobile Content Area -->
-    <main class="md:hidden max-w-4xl mx-auto px-4 py-5">
-      <router-view />
-    </main>
-
-    <!-- Mobile Bottom Navigation -->
-    <nav
-      class="md:hidden fixed bottom-0 inset-x-0 z-40 glass border-t-0 safe-area-bottom"
-    >
-      <div class="flex items-center justify-around h-16 max-w-4xl mx-auto">
-        <router-link
-          v-for="item in bottomNavItems"
-          :key="item.path"
-          :to="item.path"
-          :class="[
-            'flex flex-col items-center justify-center gap-0.5 w-16 h-full transition-all duration-300 active:scale-90',
-            $route.path === item.path ? 'text-accent' : 'text-text-tertiary',
-          ]"
-        >
-          <component :is="item.icon" :active="$route.path === item.path" />
-          <span class="text-[10px] font-medium">{{ item.label }}</span>
-        </router-link>
-      </div>
-    </nav>
   </div>
 </template>
 
