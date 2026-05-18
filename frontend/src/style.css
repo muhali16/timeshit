@@ -107,7 +107,7 @@ select {
 }
 
 .glass-strong {
-  background: rgba(20, 24, 35, 0.82);
+  background: rgba(20, 24, 35, 0.94);
   backdrop-filter: blur(40px) saturate(160%);
   -webkit-backdrop-filter: blur(40px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.22);
@@ -165,8 +165,8 @@ select {
 .form-input {
   width: 100%;
   padding: 0.625rem 0.875rem;
-  background-color: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(15, 20, 30, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 0.75rem;
   color: var(--color-text-primary);
   font-size: 0.875rem;
@@ -182,7 +182,7 @@ select {
   box-shadow:
     0 0 0 3px rgba(249, 115, 22, 0.2),
     0 0 16px rgba(249, 115, 22, 0.1);
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(15, 20, 30, 0.85);
 }
 
 .form-input::placeholder {
