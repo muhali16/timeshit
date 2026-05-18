@@ -247,10 +247,17 @@ select {
   color: var(--color-text-tertiary);
 }
 
-@supports (padding: env(safe-area-inset-bottom)) {
-  .pb-20 {
-    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
-  }
+/* Safe area utilities for notched phones */
+.safe-area-top {
+  padding-top: max(0px, env(safe-area-inset-top));
+}
+
+.safe-area-bottom {
+  padding-bottom: max(0px, env(safe-area-inset-bottom));
+}
+
+.pb-nav-safe {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
 }
 
 /* Stagger animation delays */

@@ -1,9 +1,7 @@
 <template>
-  <div class="min-h-screen text-text-primary pb-20 md:pb-0">
+  <div class="min-h-screen text-text-primary pb-nav-safe md:pb-0">
     <!-- Mobile Header -->
-    <header
-      class="md:hidden sticky top-0 z-40 glass border-b-0 pt-[env(safe-area-inset-top)]"
-    >
+    <header class="md:hidden sticky top-0 z-40 glass border-b-0 safe-area-top">
       <div
         class="max-w-4xl mx-auto px-4 min-h-14 flex items-center justify-between"
       >
@@ -314,7 +312,7 @@
 
     <!-- Mobile Bottom Navigation -->
     <nav
-      class="md:hidden fixed bottom-0 inset-x-0 z-40 glass border-t-0 pb-[env(safe-area-inset-bottom)]"
+      class="md:hidden fixed bottom-0 inset-x-0 z-40 glass border-t-0 safe-area-bottom"
     >
       <div class="flex items-center justify-around h-16 max-w-4xl mx-auto">
         <router-link
