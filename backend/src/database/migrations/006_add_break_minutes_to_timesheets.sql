@@ -1,0 +1,2 @@
+ALTER TABLE timesheets
+ADD COLUMN break_minutes INTEGER DEFAULT 0;
