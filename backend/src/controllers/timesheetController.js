@@ -1,13 +1,16 @@
-const timesheetService = require('../services/timesheetService');
-const uploadService = require('../services/uploadService');
-const googleDriveService = require('../services/googleDriveService');
-const { db } = require('../database/connection');
-const { users } = require('../database/schema');
-const { eq } = require('drizzle-orm');
+const timesheetService = require("../services/timesheetService");
+const uploadService = require("../services/uploadService");
+const googleDriveService = require("../services/googleDriveService");
+const { db } = require("../database/connection");
+const { users } = require("../database/schema");
+const { eq } = require("drizzle-orm");
 
 class TimesheetController {
   async getUserBreakMinutes(userId) {
-    const userRows = await db.select({ breakMinutes: users.defaultBreakMinutes }).from(users).where(eq(users.id, userId));
+    const userRows = await db
+      .select({ breakMinutes: users.defaultBreakMinutes })
+      .from(users)
+      .where(eq(users.id, userId));
     return userRows[0]?.breakMinutes || 0;
   }
 
@@ -39,7 +42,7 @@ class TimesheetController {
       req.log.error(error);
       return reply.status(500).send({
         success: false,
-        message: 'Gagal mengambil data timesheet',
+        message: "Gagal mengambil data timesheet",
         error: error.message,
       });
     }
@@ -49,15 +52,15 @@ class TimesheetController {
     try {
       const body = req.body || {};
 
-      const {
+      const { tanggal, jam_mulai, jam_selesai, lokasi, rincian_tugas } = body;
+
+      const required = {
         tanggal,
         jam_mulai,
         jam_selesai,
         lokasi,
         rincian_tugas,
-      } = body;
-
-      const required = { tanggal, jam_mulai, jam_selesai, lokasi, rincian_tugas };
+      };
       const missing = Object.entries(required)
         .filter(([, v]) => !v)
         .map(([k]) => k);
@@ -65,12 +68,12 @@ class TimesheetController {
       if (missing.length > 0) {
         return reply.status(400).send({
           success: false,
-          message: `Field wajib tidak lengkap: ${missing.join(', ')}`,
+          message: `Field wajib tidak lengkap: ${missing.join(", ")}`,
         });
       }
 
-      const [sh, sm] = jam_mulai.split(':').map(Number);
-      const [eh, em] = jam_selesai.split(':').map(Number);
+      const [sh, sm] = jam_mulai.split(":").map(Number);
+      const [eh, em] = jam_selesai.split(":").map(Number);
       const startMinutes = sh * 60 + sm;
       const endMinutes = eh * 60 + em;
       const breakMinutes = await this.getUserBreakMinutes(req.userId);
@@ -79,7 +82,7 @@ class TimesheetController {
       if (endMinutes < startMinutes) {
         return reply.status(400).send({
           success: false,
-          message: 'jam_selesai harus lebih besar dari jam_mulai',
+          message: "jam_selesai harus lebih besar dari jam_mulai",
         });
       }
 
@@ -100,34 +103,50 @@ class TimesheetController {
 
       const formatted = timesheetService.formatTimesheetList([created]);
 
-      const userRows = await db.select({
-        folderId: users.googleDriveFolderId,
-      }).from(users).where(eq(users.id, req.userId));
+      const userRows = await db
+        .select({
+          folderId: users.googleDriveFolderId,
+        })
+        .from(users)
+        .where(eq(users.id, req.userId));
       const folderId = userRows[0]?.googleDriveFolderId;
 
       return reply.status(201).send({
         success: true,
-        message: 'Timesheet berhasil ditambahkan',
+        message: "Timesheet berhasil ditambahkan",
         data: formatted[0],
-        warnings: !folderId ? ['Google Drive folder belum di-set. Upload evidence akan gagal sampai folder diatur di Settings.'] : [],
+        warnings: !folderId
+          ? [
+              "Google Drive folder belum di-set. Upload evidence akan gagal sampai folder diatur di Settings.",
+            ]
+          : [],
       });
     } catch (error) {
       req.log.error(error);
 
-      let message = 'Gagal menambahkan timesheet';
+      let message = "Gagal menambahkan timesheet";
       let status = 500;
 
-      if (error.message?.includes('duplicate key')) {
-        message = 'Sudah ada entry timesheet dengan tanggal, jam, dan lokasi yang sama';
+      if (error.message?.includes("duplicate key") || error.code === "23505") {
+        message =
+          "Sudah ada entry timesheet dengan tanggal, jam, dan lokasi yang sama";
         status = 409;
-      } else if (error.message?.includes('Failed query')) {
-        message = 'Gagal menyimpan data ke database';
+      } else if (error.message?.includes("Failed query") || error.code) {
+        message = "Gagal menyimpan data ke database";
       }
 
       return reply.status(status).send({
         success: false,
         message,
         error: error.message,
+        debug: {
+          code: error.code || null,
+          detail: error.detail || null,
+          constraint: error.constraint || null,
+          schema: error.schema || null,
+          table: error.table || null,
+          column: error.column || null,
+        },
       });
     }
   }
@@ -139,7 +158,7 @@ class TimesheetController {
       if (!timesheet) {
         return reply.status(404).send({
           success: false,
-          message: 'Timesheet tidak ditemukan',
+          message: "Timesheet tidak ditemukan",
         });
       }
 
@@ -152,7 +171,7 @@ class TimesheetController {
       req.log.error(error);
       return reply.status(500).send({
         success: false,
-        message: 'Gagal mengambil data timesheet',
+        message: "Gagal mengambil data timesheet",
         error: error.message,
       });
     }
@@ -163,19 +182,13 @@ class TimesheetController {
       const { id } = req.params;
       const body = req.body || {};
 
-      const {
-        tanggal,
-        jam_mulai,
-        jam_selesai,
-        lokasi,
-        rincian_tugas,
-      } = body;
+      const { tanggal, jam_mulai, jam_selesai, lokasi, rincian_tugas } = body;
 
       const existing = await timesheetService.getTimesheetById(id, req.userId);
       if (!existing) {
         return reply.status(404).send({
           success: false,
-          message: 'Timesheet tidak ditemukan',
+          message: "Timesheet tidak ditemukan",
         });
       }
 
@@ -190,8 +203,8 @@ class TimesheetController {
       if (jam_mulai !== undefined || jam_selesai !== undefined) {
         const st = jam_mulai || existing.startTime;
         const et = jam_selesai || existing.endTime;
-        const [sh, sm] = st.split(':').map(Number);
-        const [eh, em] = et.split(':').map(Number);
+        const [sh, sm] = st.split(":").map(Number);
+        const [eh, em] = et.split(":").map(Number);
         const startMinutes = sh * 60 + sm;
         const endMinutes = eh * 60 + em;
         const breakMinutes = await this.getUserBreakMinutes(req.userId);
@@ -200,7 +213,7 @@ class TimesheetController {
         if (endMinutes < startMinutes) {
           return reply.status(400).send({
             success: false,
-            message: 'jam_selesai harus lebih besar dari jam_mulai',
+            message: "jam_selesai harus lebih besar dari jam_mulai",
           });
         }
         if (durationMinutes < 0) {
@@ -210,25 +223,30 @@ class TimesheetController {
         updates.breakMinutes = breakMinutes;
       }
 
-      const updated = await timesheetService.updateTimesheet(id, req.userId, updates);
+      const updated = await timesheetService.updateTimesheet(
+        id,
+        req.userId,
+        updates,
+      );
       const formatted = timesheetService.formatTimesheetList([updated]);
 
       return reply.send({
         success: true,
-        message: 'Timesheet berhasil diupdate',
+        message: "Timesheet berhasil diupdate",
         data: formatted[0],
       });
     } catch (error) {
       req.log.error(error);
 
-      let message = 'Gagal mengupdate timesheet';
+      let message = "Gagal mengupdate timesheet";
       let status = 500;
 
-      if (error.message?.includes('Timesheet not found')) {
-        message = 'Timesheet tidak ditemukan';
+      if (error.message?.includes("Timesheet not found")) {
+        message = "Timesheet tidak ditemukan";
         status = 404;
-      } else if (error.message?.includes('duplicate key')) {
-        message = 'Sudah ada entry timesheet dengan tanggal, jam, dan lokasi yang sama';
+      } else if (error.message?.includes("duplicate key")) {
+        message =
+          "Sudah ada entry timesheet dengan tanggal, jam, dan lokasi yang sama";
         status = 409;
       }
 
@@ -248,27 +266,36 @@ class TimesheetController {
       if (!existing) {
         return reply.status(404).send({
           success: false,
-          message: 'Timesheet tidak ditemukan',
+          message: "Timesheet tidak ditemukan",
         });
       }
 
-      const { gdriveFileIds } = await timesheetService.deleteTimesheet(id, req.userId);
+      const { gdriveFileIds } = await timesheetService.deleteTimesheet(
+        id,
+        req.userId,
+      );
 
       // Best-effort cleanup Google Drive files
       const gdriveResults = [];
       for (const fileId of gdriveFileIds) {
         try {
-          const result = await googleDriveService.deleteFile(req.userId, fileId);
+          const result = await googleDriveService.deleteFile(
+            req.userId,
+            fileId,
+          );
           gdriveResults.push({ fileId, ...result });
         } catch (err) {
-          req.log.error({ err, fileId }, 'Gagal menghapus file dari Google Drive');
+          req.log.error(
+            { err, fileId },
+            "Gagal menghapus file dari Google Drive",
+          );
           gdriveResults.push({ fileId, deleted: false, error: err.message });
         }
       }
 
       return reply.send({
         success: true,
-        message: 'Timesheet berhasil dihapus',
+        message: "Timesheet berhasil dihapus",
         data: {
           gdrive_cleanup: gdriveResults,
         },
@@ -277,7 +304,7 @@ class TimesheetController {
       req.log.error(error);
       return reply.status(500).send({
         success: false,
-        message: 'Gagal menghapus timesheet',
+        message: "Gagal menghapus timesheet",
         error: error.message,
       });
     }
@@ -292,32 +319,38 @@ class TimesheetController {
       if (!timesheet) {
         return reply.status(404).send({
           success: false,
-          message: 'Timesheet tidak ditemukan',
+          message: "Timesheet tidak ditemukan",
         });
       }
 
-      const { googleDriveFileId } = await timesheetService.deleteEvidence(evidenceId, req.userId);
+      const { googleDriveFileId } = await timesheetService.deleteEvidence(
+        evidenceId,
+        req.userId,
+      );
 
       // Best-effort delete from Google Drive
       if (googleDriveFileId) {
         try {
           await googleDriveService.deleteFile(req.userId, googleDriveFileId);
         } catch (err) {
-          req.log.error({ err, googleDriveFileId }, 'Gagal menghapus file evidence dari Google Drive');
+          req.log.error(
+            { err, googleDriveFileId },
+            "Gagal menghapus file evidence dari Google Drive",
+          );
         }
       }
 
       return reply.send({
         success: true,
-        message: 'Evidence berhasil dihapus',
+        message: "Evidence berhasil dihapus",
       });
     } catch (error) {
       req.log.error(error);
 
-      let message = 'Gagal menghapus evidence';
+      let message = "Gagal menghapus evidence";
       let status = 500;
-      if (error.message?.includes('Evidence not found')) {
-        message = 'Evidence tidak ditemukan';
+      if (error.message?.includes("Evidence not found")) {
+        message = "Evidence tidak ditemukan";
         status = 404;
       }
 
@@ -337,27 +370,32 @@ class TimesheetController {
       if (!timesheet) {
         return reply.status(404).send({
           success: false,
-          message: 'Timesheet tidak ditemukan',
+          message: "Timesheet tidak ditemukan",
         });
       }
 
-      const userRows = await db.select({
-        folderId: users.googleDriveFolderId,
-        refreshToken: users.googleRefreshToken,
-      }).from(users).where(eq(users.id, req.userId));
+      const userRows = await db
+        .select({
+          folderId: users.googleDriveFolderId,
+          refreshToken: users.googleRefreshToken,
+        })
+        .from(users)
+        .where(eq(users.id, req.userId));
       const user = userRows[0];
 
       if (!user?.refreshToken) {
         return reply.status(400).send({
           success: false,
-          message: 'Google Drive belum terhubung. Login ulang dengan Google untuk menghubungkan.',
+          message:
+            "Google Drive belum terhubung. Login ulang dengan Google untuk menghubungkan.",
         });
       }
 
       if (!user?.folderId) {
         return reply.status(400).send({
           success: false,
-          message: 'Google Drive folder belum di-set. Atur folder ID di halaman Settings.',
+          message:
+            "Google Drive folder belum di-set. Atur folder ID di halaman Settings.",
         });
       }
 
@@ -372,12 +410,15 @@ class TimesheetController {
               part,
               timesheet.entryDate,
               fileIndex,
-              req.userId
+              req.userId,
             );
             uploadedFiles.push(saved);
             fileIndex++;
           } catch (err) {
-            req.log.error({ err, fileName: part.filename }, 'Gagal upload file ke Google Drive');
+            req.log.error(
+              { err, fileName: part.filename },
+              "Gagal upload file ke Google Drive",
+            );
             return reply.status(500).send({
               success: false,
               message: `Gagal upload file "${part.filename}" ke Google Drive`,
@@ -390,7 +431,7 @@ class TimesheetController {
       if (uploadedFiles.length === 0) {
         return reply.status(400).send({
           success: false,
-          message: 'Tidak ada file yang diupload',
+          message: "Tidak ada file yang diupload",
         });
       }
 
@@ -412,7 +453,7 @@ class TimesheetController {
       req.log.error(error);
       return reply.status(500).send({
         success: false,
-        message: 'Gagal mengupload evidence',
+        message: "Gagal mengupload evidence",
         error: error.message,
       });
     }
