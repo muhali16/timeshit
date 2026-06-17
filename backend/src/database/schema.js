@@ -74,6 +74,8 @@ const users = pgTable("users", {
     defaultCategory: "Belum Dikerjakan",
   }),
   defaultBreakMinutes: integer("default_break_minutes").default(0),
+  defaultHistoryPeriod: varchar("default_history_period", { length: 30 }).default("current_month"),
+  defaultHistoryCustom: jsonb("default_history_custom"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

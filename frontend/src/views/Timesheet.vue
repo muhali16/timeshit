@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-lg mx-auto md:max-w-2xl lg:max-w-3xl">
+  <div class="max-w-7xl mx-auto px-4 md:px-8">
     <div class="mb-5 md:mb-8">
       <h1
         class="text-xl md:text-2xl font-bold text-text-primary tracking-tight"
@@ -11,7 +11,9 @@
       </p>
     </div>
 
-    <div class="glass rounded-2xl p-5 md:p-8 glow-orange">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 md:gap-8">
+      <div class="lg:col-span-2">
+        <div class="glass rounded-2xl p-5 md:p-8 glow-orange">
       <form @submit.prevent="handleSubmit" class="space-y-4 md:space-y-5">
         <div>
           <label
@@ -378,6 +380,60 @@
           {{ submitting ? "Menyimpan..." : "Simpan Timesheet" }}
         </button>
       </form>
+        </div>
+      </div>
+
+      <!-- Preview Column -->
+      <div class="hidden lg:block lg:col-span-1">
+        <div class="sticky top-5">
+          <div class="glass rounded-2xl p-5">
+            <h2 class="text-sm font-semibold text-text-primary mb-4">Preview</h2>
+
+            <!-- Date Badge -->
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-12 h-12 rounded-xl bg-accent/10 flex flex-col items-center justify-center flex-shrink-0">
+                <span class="text-accent text-[10px] font-bold uppercase leading-none">{{ previewDay }}</span>
+                <span class="text-text-primary font-bold text-sm leading-tight">{{ previewDate }}</span>
+                <span class="text-text-tertiary text-[8px] leading-none mt-0.5">{{ previewMonth }}</span>
+              </div>
+              <div v-if="durationPreview" class="text-right">
+                <span class="px-2.5 py-1 bg-accent/10 text-accent text-xs rounded-full font-medium">{{ durationPreview }}</span>
+              </div>
+            </div>
+
+            <!-- Time & Location -->
+            <div class="space-y-2 mb-4">
+              <div v-if="form.jam_mulai && form.jam_selesai" class="text-sm">
+                <p class="text-text-tertiary text-xs mb-0.5">Waktu Kerja</p>
+                <p class="text-text-secondary font-mono text-sm">{{ form.jam_mulai }} - {{ form.jam_selesai }}</p>
+              </div>
+              <div v-if="previewLocation" class="text-sm">
+                <p class="text-text-tertiary text-xs mb-0.5">Lokasi</p>
+                <p class="text-text-primary font-medium truncate">{{ previewLocation }}</p>
+              </div>
+            </div>
+
+            <!-- Tasks -->
+            <div v-if="form.rincian_tugas" class="text-text-tertiary text-xs space-y-0.5 mb-4">
+              <p class="text-text-tertiary text-[10px] font-medium mb-2">Aktivitas</p>
+              <p v-for="(line, idx) in previewTasks" :key="idx" :class="{ 'task-muted': line.trim().startsWith('~') }" class="line-clamp-1">
+                {{ line }}
+              </p>
+            </div>
+
+            <!-- Evidence Count -->
+            <div v-if="selectedFiles.length > 0" class="pt-3 border-t border-white/5">
+              <p class="text-text-tertiary text-xs mb-2">Evidence</p>
+              <p class="text-accent text-sm font-medium">{{ selectedFiles.length }} file</p>
+            </div>
+
+            <!-- Empty State -->
+            <div v-if="!form.jam_mulai && !form.jam_selesai && !form.rincian_tugas" class="text-center py-6">
+              <p class="text-text-tertiary text-xs">Isi form untuk melihat preview</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Toast Notifications -->
@@ -550,6 +606,40 @@ const durationPreview = computed(() => {
   const mins = duration % 60;
   if (mins === 0) return `${hours} jam`;
   return `${hours} jam ${mins} menit`;
+});
+
+const previewDay = computed(() => {
+  if (!form.tanggal) return "";
+  const date = new Date(form.tanggal + "T00:00:00");
+  const days = ["Ming", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+  return days[date.getDay()];
+});
+
+const previewDate = computed(() => {
+  if (!form.tanggal) return "";
+  const date = new Date(form.tanggal + "T00:00:00");
+  return String(date.getDate()).padStart(2, "0");
+});
+
+const previewMonth = computed(() => {
+  if (!form.tanggal) return "";
+  const date = new Date(form.tanggal + "T00:00:00");
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return months[date.getMonth()];
+});
+
+const previewLocation = computed(() => {
+  if (selectedLocation.value === "__custom__") {
+    return customLocation.value;
+  }
+  return form.lokasi;
+});
+
+const previewTasks = computed(() => {
+  return (form.rincian_tugas || "")
+    .split("\n")
+    .filter(l => l.trim())
+    .slice(0, 5);
 });
 
 const form = reactive({

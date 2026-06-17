@@ -80,3 +80,4 @@ docker-compose.override.yml
 *.pid.lock
 
 AGENTS.md
+CLAUDE.md

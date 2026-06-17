@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const { Pool } = require('pg');
+const { getUserSelection } = require('./seed-utils');
 
 async function seed() {
   const pool = new Pool({
@@ -10,17 +11,10 @@ async function seed() {
   const client = await pool.connect();
 
   try {
-    await client.query('BEGIN');
+    // Get user selection dari user
+    const userId = await getUserSelection(client);
 
-    // Insert dummy user
-    const userResult = await client.query(
-      `INSERT INTO users (email, name, timezone)
-       VALUES ('admin@timeflow.app', 'Admin User', 'Asia/Jakarta')
-       ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name
-       RETURNING id`
-    );
-    const userId = userResult.rows[0].id;
-    console.log('User ID:', userId);
+    await client.query('BEGIN');
 
     // Insert dummy timesheet entries
     const entries = [

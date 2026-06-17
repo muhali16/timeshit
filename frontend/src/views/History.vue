@@ -58,7 +58,7 @@
 
     <!-- Filters -->
     <div v-if="activeTab === 'entries'" class="glass rounded-2xl p-4 md:p-5">
-      <div class="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+      <div class="grid grid-cols-2 gap-3 md:flex md:items-end md:gap-4">
         <div>
           <label class="block text-xs text-text-tertiary mb-1.5 font-medium">Dari</label>
           <input
@@ -77,25 +77,42 @@
             @change="applyFilters"
           />
         </div>
+        <div>
+          <label class="block text-xs text-text-tertiary mb-1.5 font-medium">Urutkan</label>
+          <select
+            v-model="sortOption"
+            class="form-input text-sm"
+          >
+            <option value="date_asc">Tanggal (Awal)</option>
+            <option value="date_desc">Tanggal (Terbaru)</option>
+            <option value="duration_asc">Durasi (Terkecil)</option>
+            <option value="duration_desc">Durasi (Terbesar)</option>
+            <option value="location">Lokasi (A-Z)</option>
+          </select>
+        </div>
+        <div class="col-span-2 flex flex-wrap items-center gap-3 md:ml-auto md:col-span-1">
+          <button
+            v-if="filters.date_from || filters.date_to"
+            @click="resetFilters"
+            class="text-xs text-accent font-medium hover:text-accent-hover transition-colors"
+          >
+            Reset filter
+          </button>
+          <button
+            @click="openExport"
+            class="px-4 py-2.5 btn-primary rounded-xl text-sm font-medium flex items-center gap-2 shadow-lg shadow-accent/20 hover:shadow-accent/30 transition-all active:scale-95"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Export ke Excel
+          </button>
+        </div>
       </div>
-      <div class="mt-4 flex flex-wrap items-center gap-3">
-        <button
-          v-if="filters.date_from || filters.date_to"
-          @click="resetFilters"
-          class="text-xs text-accent font-medium hover:text-accent-hover transition-colors"
-        >
-          Reset filter
-        </button>
-        <button
-          @click="openExport"
-          class="px-4 py-2.5 btn-primary rounded-xl text-sm font-medium flex items-center gap-2 shadow-lg shadow-accent/20 hover:shadow-accent/30 transition-all active:scale-95"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-          </svg>
-          Export ke Excel
-        </button>
-      </div>
+      <p class="text-text-tertiary text-[10px] md:text-xs mt-2 leading-relaxed">
+        💡 Filter tanggal otomatis diterapkan berdasarkan periode default. Atur di
+        <router-link to="/settings" class="text-accent hover:underline font-medium">Preferensi Settings</router-link>.
+      </p>
     </div>
 
     <!-- Entries Tab -->
@@ -104,7 +121,7 @@
         <div class="inline-block w-7 h-7 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
       </div>
 
-      <div v-else-if="entries.length === 0" class="text-center py-12 glass rounded-2xl">
+      <div v-else-if="sortedEntries.length === 0" class="text-center py-12 glass rounded-2xl">
         <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-accent/10 flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-accent/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -119,7 +136,7 @@
         <!-- Mobile -->
         <div class="space-y-2.5 md:hidden">
           <div
-            v-for="entry in entries"
+            v-for="entry in sortedEntries"
             :key="entry.id"
             class="glass rounded-2xl p-4"
           >
@@ -128,6 +145,7 @@
               <div class="flex-shrink-0 w-11 h-11 bg-accent/10 rounded-xl flex flex-col items-center justify-center">
                 <span class="text-accent text-[10px] font-bold uppercase leading-none">{{ entry.hari?.slice(0, 3) }}</span>
                 <span class="text-text-primary font-bold text-sm leading-tight">{{ entry.tanggalDisplay ? entry.tanggalDisplay.split(' ')[0] : entry.tanggal?.split('-')[2] }}</span>
+                <span class="text-text-tertiary text-[8px] leading-none mt-0.5">{{ formatMonthYear(entry.tanggal) }}</span>
               </div>
 
               <div class="min-w-0 flex-1">
@@ -135,7 +153,6 @@
                   <span class="text-text-secondary text-xs font-mono">{{ entry.jam_mulai }} - {{ entry.jam_selesai }}</span>
                   <span class="text-accent text-xs font-medium">{{ entry.durasi }}</span>
                 </div>
-                <p class="text-text-tertiary text-[10px] mb-0.5">{{ entry.tanggalDisplay || entry.tanggal }}</p>
                 <p class="text-sm font-medium text-text-primary">{{ entry.lokasi }}</p>
               </div>
 
@@ -197,7 +214,7 @@
         <!-- Desktop masonry -->
         <div class="hidden md:block masonry-2 lg:masonry-3">
           <div
-            v-for="entry in entries"
+            v-for="entry in sortedEntries"
             :key="entry.id"
             class="glass glass-hover card-lift rounded-2xl p-5 group masonry-item mb-4"
           >
@@ -206,6 +223,7 @@
                 <div class="w-12 h-12 rounded-xl bg-accent/10 flex flex-col items-center justify-center group-hover:bg-accent/20 transition-colors">
                   <span class="text-accent text-[10px] font-bold uppercase leading-none">{{ entry.hari?.slice(0, 3) }}</span>
                   <span class="text-text-primary font-bold text-base leading-tight">{{ entry.tanggalDisplay ? entry.tanggalDisplay.split(' ')[0] : entry.tanggal?.split('-')[2] }}</span>
+                  <span class="text-text-tertiary text-[8px] leading-none mt-0.5">{{ formatMonthYear(entry.tanggal) }}</span>
                 </div>
                 <div>
                   <p class="text-sm font-semibold text-text-primary">{{ entry.lokasi }}</p>
@@ -214,8 +232,6 @@
               </div>
               <span class="px-2.5 py-1 bg-accent/10 text-accent text-xs rounded-full font-medium">{{ entry.durasi }}</span>
             </div>
-
-            <p class="text-text-tertiary text-[10px] mb-2">{{ entry.tanggalDisplay || entry.tanggal }}</p>
 
             <div class="text-text-tertiary text-xs space-y-0.5 mb-4">
               <p
@@ -300,11 +316,11 @@
               <div class="flex-shrink-0 w-11 h-11 rounded-xl flex flex-col items-center justify-center" :class="entry.isNationalHoliday ? 'bg-accent/10' : 'bg-danger/10'">
                 <span class="text-[10px] font-bold uppercase leading-none" :class="entry.isNationalHoliday ? 'text-accent' : 'text-danger'">{{ entry.hari?.slice(0, 3) }}</span>
                 <span class="font-bold text-sm leading-tight text-text-primary">{{ entry.tanggalDisplay }}</span>
+                <span class="text-text-tertiary text-[8px] leading-none mt-0.5" :class="entry.isNationalHoliday ? 'text-accent' : 'text-text-tertiary'">{{ formatMonthYearFromDate(entry.entryDate) }}</span>
               </div>
               <div class="min-w-0 flex-1">
                 <p class="text-sm font-medium text-text-primary">{{ entry.reason?.name || entry.holidayName || 'Libur Nasional' }}</p>
                 <p v-if="entry.notes" class="text-text-tertiary text-xs mt-0.5">{{ entry.notes }}</p>
-                <p class="text-text-tertiary text-[10px] mt-0.5">{{ entry.tanggalFull }}</p>
               </div>
               <button
                 @click="deleteAbsenceEntry(entry.id)"
@@ -331,10 +347,10 @@
                 <div class="w-12 h-12 rounded-xl flex flex-col items-center justify-center" :class="entry.isNationalHoliday ? 'bg-accent/10' : 'bg-danger/10'">
                   <span class="text-[10px] font-bold uppercase leading-none" :class="entry.isNationalHoliday ? 'text-accent' : 'text-danger'">{{ entry.hari?.slice(0, 3) }}</span>
                   <span class="font-bold text-base leading-tight text-text-primary">{{ entry.tanggalDisplay }}</span>
+                  <span class="text-text-tertiary text-[8px] leading-none mt-0.5" :class="entry.isNationalHoliday ? 'text-accent' : 'text-text-tertiary'">{{ formatMonthYearFromDate(entry.entryDate) }}</span>
                 </div>
                 <div>
                   <p class="text-sm font-semibold text-text-primary">{{ entry.reason?.name || entry.holidayName || 'Libur Nasional' }}</p>
-                  <p class="text-text-tertiary text-[10px]">{{ entry.tanggalFull }}</p>
                 </div>
               </div>
               <button
@@ -1014,6 +1030,42 @@ const filters = reactive({
   date_to: '',
 })
 
+const sortOption = ref('date_asc')
+
+const sortedEntries = computed(() => {
+  const list = [...entries.value]
+
+  switch (sortOption.value) {
+    case 'date_desc':
+      return list.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal))
+    case 'duration_asc': {
+      const durationToMinutes = (durasi) => {
+        if (!durasi) return 0
+        const match = durasi.match(/(\d+)\s*jam\s*(\d+)/)
+        if (match) return parseInt(match[1]) * 60 + parseInt(match[2])
+        const hours = durasi.match(/(\d+)\s*jam/)
+        return hours ? parseInt(hours[1]) * 60 : 0
+      }
+      return list.sort((a, b) => durationToMinutes(a.durasi) - durationToMinutes(b.durasi))
+    }
+    case 'duration_desc': {
+      const durationToMinutes = (durasi) => {
+        if (!durasi) return 0
+        const match = durasi.match(/(\d+)\s*jam\s*(\d+)/)
+        if (match) return parseInt(match[1]) * 60 + parseInt(match[2])
+        const hours = durasi.match(/(\d+)\s*jam/)
+        return hours ? parseInt(hours[1]) * 60 : 0
+      }
+      return list.sort((a, b) => durationToMinutes(b.durasi) - durationToMinutes(a.durasi))
+    }
+    case 'location':
+      return list.sort((a, b) => (a.lokasi || '').localeCompare(b.lokasi || ''))
+    case 'date_asc':
+    default:
+      return list.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal))
+  }
+})
+
 const activeTab = ref('entries')
 
 const showEditModal = ref(false)
@@ -1453,8 +1505,85 @@ function resetFilters() {
   store.fetchEntries()
 }
 
+function formatMonthYear(dateStr) {
+  if (!dateStr) return ''
+  const [year, month] = dateStr.split('-')
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+  return `${months[parseInt(month) - 1]} ${year}`
+}
+
+function formatMonthYearFromDate(dateStr) {
+  if (!dateStr) return ''
+  const d = new Date(dateStr + 'T00:00:00')
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+  return `${months[d.getMonth()]} ${d.getFullYear()}`
+}
+
+function computeDefaultPeriod(period, customConfig) {
+  const today = new Date()
+  const pad = n => String(n).padStart(2, '0')
+  const fmt = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+
+  if (period === 'all' || !period) return { from: '', to: '' }
+
+  if (period === 'custom') {
+    if (!customConfig) return { from: '', to: '' }
+    const { fromDay, fromMonthOffset, toDay, toMonthOffset } = customConfig
+    const fromDate = new Date(today.getFullYear(), today.getMonth() + (fromMonthOffset || 0), fromDay || 1)
+    const toDate = new Date(today.getFullYear(), today.getMonth() + (toMonthOffset || 0), toDay || 1)
+    return { from: fmt(fromDate), to: fmt(toDate) }
+  }
+
+  if (period === 'current_month') {
+    const from = new Date(today.getFullYear(), today.getMonth(), 1)
+    const to = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+    return { from: fmt(from), to: fmt(to) }
+  }
+
+  if (period === 'current_week') {
+    const day = today.getDay()
+    const diff = (day === 0 ? -6 : 1 - day)
+    const from = new Date(today)
+    from.setDate(today.getDate() + diff)
+    const to = new Date(from)
+    to.setDate(from.getDate() + 6)
+    return { from: fmt(from), to: fmt(to) }
+  }
+
+  if (period === 'last_7_days') {
+    const from = new Date(today)
+    from.setDate(today.getDate() - 6)
+    return { from: fmt(from), to: fmt(today) }
+  }
+
+  if (period === 'last_30_days') {
+    const from = new Date(today)
+    from.setDate(today.getDate() - 29)
+    return { from: fmt(from), to: fmt(today) }
+  }
+
+  if (period === 'last_month') {
+    const from = new Date(today.getFullYear(), today.getMonth() - 1, 1)
+    const to = new Date(today.getFullYear(), today.getMonth(), 0)
+    return { from: fmt(from), to: fmt(to) }
+  }
+
+  return { from: '', to: '' }
+}
+
 onMounted(() => {
-  store.fetchEntries()
+  const period = authStore.user?.defaultHistoryPeriod || 'current_month'
+  const { from, to } = computeDefaultPeriod(
+    period,
+    authStore.user?.defaultHistoryCustom,
+  )
+  filters.date_from = from
+  filters.date_to = to
+
+  const params = {}
+  if (from) params.date_from = from
+  if (to) params.date_to = to
+  store.fetchEntries(params)
   fetchAbsenceEntries()
 })
 

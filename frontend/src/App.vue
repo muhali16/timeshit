@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen text-text-primary md:pb-0">
     <!-- Mobile Layout Wrapper -->
-    <div class="md:hidden flex flex-col fixed inset-0 z-0 overflow-hidden">
+    <div v-if="isMobile" class="flex flex-col fixed inset-0 z-0 overflow-hidden">
       <!-- Mobile Header -->
       <header class="flex-shrink-0 z-40 glass border-b-0 safe-area-top">
         <div
@@ -173,7 +173,7 @@
     </div>
 
     <!-- Desktop Layout: Floating Sidebar + Content -->
-    <div class="hidden md:flex min-h-screen">
+    <div v-else class="flex min-h-screen">
       <!-- Floating Sidebar -->
       <aside
         class="w-[72px] xl:w-20 flex-shrink-0 p-4 flex flex-col items-center gap-4 fixed h-screen z-40"
@@ -347,6 +347,10 @@ const profileOpen = ref(false);
 const profileDropdown = ref(null);
 const mobileAvatarError = ref(false);
 
+const isMobile = ref(window.matchMedia("(max-width: 767px)").matches);
+const mq = window.matchMedia("(max-width: 767px)");
+function onMQChange(e) { isMobile.value = e.matches; }
+
 async function handleLogout() {
   profileOpen.value = false;
   await authStore.logout();
@@ -359,8 +363,14 @@ function onClickOutside(e) {
   }
 }
 
-onMounted(() => document.addEventListener("click", onClickOutside));
-onUnmounted(() => document.removeEventListener("click", onClickOutside));
+onMounted(() => {
+  document.addEventListener("click", onClickOutside);
+  mq.addEventListener("change", onMQChange);
+});
+onUnmounted(() => {
+  document.removeEventListener("click", onClickOutside);
+  mq.removeEventListener("change", onMQChange);
+});
 
 // Nav icons (render functions)
 const DashboardIcon = {

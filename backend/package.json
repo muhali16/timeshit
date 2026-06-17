@@ -7,6 +7,7 @@
     "start": "node src/server.js",
     "db:migrate": "node src/database/migrate.js",
     "db:seed": "node src/database/seed.js",
+    "db:seed:3months": "node src/database/seed-timesheet-3months.js",
     "gdrive:auth": "node src/scripts/gdrive-auth.js",
     "test": "jest"
   },

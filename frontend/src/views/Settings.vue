@@ -102,10 +102,10 @@
         </button>
       </div>
 
-      <!-- Tab: Umum -->
-      <div v-if="activeTab === 'umum'" class="space-y-5">
+      <!-- Tab: Umum & Preferensi -->
+      <div v-if="activeTab === 'umum' || activeTab === 'preferensi'" class="space-y-5">
         <!-- Profile Edit -->
-        <div class="glass rounded-2xl p-5 md:p-6">
+        <div v-if="activeTab === 'umum'" class="glass rounded-2xl p-5 md:p-6">
           <h2
             class="text-sm md:text-base font-semibold text-text-primary mb-4 flex items-center gap-2"
           >
@@ -199,8 +199,98 @@
           </div>
         </div>
 
+        <!-- Default History Period -->
+        <div v-if="activeTab === 'preferensi'" class="glass rounded-2xl p-5 md:p-6">
+          <h2
+            class="text-sm md:text-base font-semibold text-text-primary mb-4 flex items-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4 text-accent"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+            Filter Periode Default Riwayat
+          </h2>
+          <p class="text-text-tertiary text-xs mb-4 leading-relaxed">
+            Periode yang otomatis terpilih saat membuka halaman Riwayat.
+          </p>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <button
+              v-for="opt in historyPeriodOptions"
+              :key="opt.value"
+              type="button"
+              @click="form.defaultHistoryPeriod = opt.value"
+              :class="[
+                'px-3 py-2.5 rounded-xl text-xs font-medium border transition-all',
+                form.defaultHistoryPeriod === opt.value
+                  ? 'border-accent bg-accent/10 text-accent'
+                  : 'border-white/10 text-text-secondary hover:bg-white/5',
+              ]"
+            >
+              {{ opt.label }}
+            </button>
+          </div>
+          <div
+            v-if="form.defaultHistoryPeriod === 'custom'"
+            class="mt-3 space-y-3"
+          >
+            <p class="text-text-tertiary text-[10px] leading-relaxed">
+              Tentukan hari dan bulan relatif. Filter akan otomatis menyesuaikan setiap bulan.
+              Contoh: tanggal 20 bulan lalu s/d tanggal 21 bulan ini.
+            </p>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-text-secondary mb-1.5">Dari — Tanggal</label>
+                <input
+                  v-model.number="form.defaultHistoryCustom.fromDay"
+                  type="number"
+                  min="1"
+                  max="31"
+                  class="form-input"
+                  placeholder="1–31"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-text-secondary mb-1.5">Dari — Bulan</label>
+                <select v-model.number="form.defaultHistoryCustom.fromMonthOffset" class="form-input">
+                  <option v-for="opt in monthOffsetOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-text-secondary mb-1.5">Sampai — Tanggal</label>
+                <input
+                  v-model.number="form.defaultHistoryCustom.toDay"
+                  type="number"
+                  min="1"
+                  max="31"
+                  class="form-input"
+                  placeholder="1–31"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-text-secondary mb-1.5">Sampai — Bulan</label>
+                <select v-model.number="form.defaultHistoryCustom.toMonthOffset" class="form-input">
+                  <option v-for="opt in monthOffsetOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                </select>
+              </div>
+            </div>
+            <p v-if="customPeriodPreview" class="text-accent text-xs font-medium">
+              Preview: {{ customPeriodPreview }}
+            </p>
+          </div>
+        </div>
+
         <!-- Default Times -->
-        <div class="glass rounded-2xl p-5 md:p-6">
+        <div v-if="activeTab === 'preferensi'" class="glass rounded-2xl p-5 md:p-6">
           <h2
             class="text-sm md:text-base font-semibold text-text-primary mb-4 flex items-center gap-2"
           >
@@ -271,7 +361,7 @@
         </div>
 
         <!-- Locations -->
-        <div class="glass rounded-2xl p-5 md:p-6">
+        <div v-if="activeTab === 'preferensi'" class="glass rounded-2xl p-5 md:p-6">
           <h2
             class="text-sm md:text-base font-semibold text-text-primary mb-4 flex items-center gap-2"
           >
@@ -380,7 +470,7 @@
         </div>
 
         <!-- Text Filter -->
-        <div class="glass rounded-2xl p-5 md:p-6">
+        <div v-if="activeTab === 'preferensi'" class="glass rounded-2xl p-5 md:p-6">
           <div class="flex items-center justify-between mb-4">
             <h2
               class="text-sm md:text-base font-semibold text-text-primary flex items-center gap-2"
@@ -574,7 +664,7 @@
         </div>
 
         <!-- Playground -->
-        <div class="glass rounded-2xl p-5 md:p-6">
+        <div v-if="activeTab === 'preferensi'" class="glass rounded-2xl p-5 md:p-6">
           <h2
             class="text-sm md:text-base font-semibold text-text-primary mb-4 flex items-center gap-2"
           >
@@ -653,7 +743,7 @@
         </div>
 
         <!-- Google Drive -->
-        <div class="glass rounded-2xl p-5 md:p-6">
+        <div v-if="activeTab === 'umum'" class="glass rounded-2xl p-5 md:p-6">
           <h2
             class="text-sm md:text-base font-semibold text-text-primary mb-4 flex items-center gap-2"
           >
@@ -718,7 +808,7 @@
         </div>
 
         <!-- Notifications -->
-        <div class="glass rounded-2xl p-5 md:p-6">
+        <div v-if="activeTab === 'umum'" class="glass rounded-2xl p-5 md:p-6">
           <div class="flex items-center justify-between">
             <div>
               <h2
@@ -763,7 +853,7 @@
 
         <!-- Install App -->
         <div
-          v-if="pwa.isInstallable.value && !pwa.isStandalone.value"
+          v-if="activeTab === 'umum' && pwa.isInstallable.value && !pwa.isStandalone.value"
           class="glass rounded-2xl p-5 md:p-6"
         >
           <div class="flex items-center justify-between">
@@ -1317,7 +1407,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import api from "../services/api.js";
 import { useAuthStore } from "../stores/authStore.js";
@@ -1353,6 +1443,7 @@ const templateInput = ref(null);
 const activeTab = ref("umum");
 const settingTabs = [
   { key: "umum", label: "Umum" },
+  { key: "preferensi", label: "Preferensi" },
   { key: "absensi", label: "Absensi & Libur" },
   { key: "export", label: "Export" },
 ];
@@ -1469,6 +1560,40 @@ const isConnected = computed(() => {
   return !!form.value.googleDriveFolderId;
 });
 
+const historyPeriodOptions = [
+  { value: "all", label: "Semua" },
+  { value: "current_week", label: "Minggu Ini" },
+  { value: "current_month", label: "Bulan Ini" },
+  { value: "last_7_days", label: "7 Hari Terakhir" },
+  { value: "last_30_days", label: "30 Hari Terakhir" },
+  { value: "last_month", label: "Bulan Lalu" },
+  { value: "custom", label: "Custom" },
+];
+
+const monthOffsetOptions = [
+  { value: -6, label: "6 Bulan Lalu" },
+  { value: -5, label: "5 Bulan Lalu" },
+  { value: -4, label: "4 Bulan Lalu" },
+  { value: -3, label: "3 Bulan Lalu" },
+  { value: -2, label: "2 Bulan Lalu" },
+  { value: -1, label: "Bulan Lalu" },
+  { value: 0, label: "Bulan Ini" },
+  { value: 1, label: "Bulan Depan" },
+  { value: 2, label: "2 Bulan Ke Depan" },
+];
+
+const customPeriodPreview = computed(() => {
+  if (form.value.defaultHistoryPeriod !== "custom") return "";
+  const c = form.value.defaultHistoryCustom;
+  if (!c.fromDay || !c.toDay) return "";
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+  const today = new Date();
+  const fromDate = new Date(today.getFullYear(), today.getMonth() + c.fromMonthOffset, c.fromDay);
+  const toDate = new Date(today.getFullYear(), today.getMonth() + c.toMonthOffset, c.toDay);
+  const fmt = (d) => `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+  return `${fmt(fromDate)} — ${fmt(toDate)}`;
+});
+
 const form = ref({
   name: "",
   timezone: "Asia/Jakarta",
@@ -1477,6 +1602,8 @@ const form = ref({
   defaultStartTime: "",
   defaultEndTime: "",
   defaultBreakMinutes: 0,
+  defaultHistoryPeriod: "current_month",
+  defaultHistoryCustom: { fromDay: 1, fromMonthOffset: -1, toDay: 1, toMonthOffset: 0 },
   locations: [],
   textFilter: { ...defaultTextFilter },
 });
@@ -1568,6 +1695,10 @@ onMounted(() => {
     form.value.defaultStartTime = user.defaultStartTime || "";
     form.value.defaultEndTime = user.defaultEndTime || "";
     form.value.defaultBreakMinutes = user.defaultBreakMinutes || 0;
+    form.value.defaultHistoryPeriod = user.defaultHistoryPeriod || "current_month";
+    form.value.defaultHistoryCustom = user.defaultHistoryCustom
+      ? { ...user.defaultHistoryCustom }
+      : { fromDay: 1, fromMonthOffset: -1, toDay: 1, toMonthOffset: 0 };
     form.value.locations = (user.locations || []).map((l) => ({ ...l }));
     const tf = user.textFilter;
     if (tf && typeof tf === "object") {

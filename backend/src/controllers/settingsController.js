@@ -31,6 +31,8 @@ class SettingsController {
           defaultStartTime: user.defaultStartTime ? user.defaultStartTime.slice(0, 5) : null,
           defaultEndTime: user.defaultEndTime ? user.defaultEndTime.slice(0, 5) : null,
           defaultBreakMinutes: user.defaultBreakMinutes || 0,
+          defaultHistoryPeriod: user.defaultHistoryPeriod || 'current_month',
+          defaultHistoryCustom: user.defaultHistoryCustom || null,
           locations: user.locations || [],
           textFilter: user.textFilter || {
             enabled: false,
@@ -56,7 +58,7 @@ class SettingsController {
 
   async update(req, reply) {
     try {
-      const { name, timezone, notificationEnabled, notificationTime, googleDriveFolderId, defaultStartTime, defaultEndTime, defaultBreakMinutes, locations, textFilter } = req.body;
+      const { name, timezone, notificationEnabled, notificationTime, googleDriveFolderId, defaultStartTime, defaultEndTime, defaultBreakMinutes, locations, textFilter, defaultHistoryPeriod, defaultHistoryCustom } = req.body;
 
       const updateData = { updatedAt: new Date() };
       if (name !== undefined) updateData.name = name;
@@ -75,6 +77,32 @@ class SettingsController {
           });
         }
         updateData.defaultBreakMinutes = breakVal;
+      }
+      if (defaultHistoryPeriod !== undefined) {
+        const validPeriods = ['all', 'current_week', 'current_month', 'last_7_days', 'last_30_days', 'last_month', 'custom'];
+        if (!validPeriods.includes(defaultHistoryPeriod)) {
+          return reply.status(400).send({
+            success: false,
+            message: 'defaultHistoryPeriod tidak valid',
+          });
+        }
+        updateData.defaultHistoryPeriod = defaultHistoryPeriod;
+      }
+      if (defaultHistoryCustom !== undefined) {
+        if (defaultHistoryCustom === null) {
+          updateData.defaultHistoryCustom = null;
+        } else {
+          const { fromDay, fromMonthOffset, toDay, toMonthOffset } = defaultHistoryCustom;
+          const isValidDay = n => Number.isInteger(n) && n >= 1 && n <= 31;
+          const isValidOffset = n => Number.isInteger(n) && n >= -12 && n <= 12;
+          if (!isValidDay(fromDay) || !isValidDay(toDay) || !isValidOffset(fromMonthOffset) || !isValidOffset(toMonthOffset)) {
+            return reply.status(400).send({
+              success: false,
+              message: 'defaultHistoryCustom: fromDay/toDay harus 1-31, fromMonthOffset/toMonthOffset harus -12 sampai 12',
+            });
+          }
+          updateData.defaultHistoryCustom = { fromDay, fromMonthOffset, toDay, toMonthOffset };
+        }
       }
       if (textFilter !== undefined) {
         if (typeof textFilter !== 'object' || textFilter === null) {
@@ -172,6 +200,8 @@ class SettingsController {
           defaultStartTime: userRows[0].defaultStartTime ? userRows[0].defaultStartTime.slice(0, 5) : null,
           defaultEndTime: userRows[0].defaultEndTime ? userRows[0].defaultEndTime.slice(0, 5) : null,
           defaultBreakMinutes: userRows[0].defaultBreakMinutes || 0,
+          defaultHistoryPeriod: userRows[0].defaultHistoryPeriod || 'current_month',
+          defaultHistoryCustom: userRows[0].defaultHistoryCustom || null,
           locations: userRows[0].locations || [],
           textFilter: userRows[0].textFilter || {
             enabled: false,
