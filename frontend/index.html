@@ -3,12 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link
-      rel="apple-touch-icon"
-      href="/icons/icon-192x192.png"
-      sizes="192x192"
-    />
-    <link rel="mask-icon" href="/favicon.svg" color="#3b82f6" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/favicon.svg" color="#f97316" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
@@ -23,64 +22,104 @@
     <meta name="apple-mobile-web-app-title" content="TimeShit" />
 
     <!-- Primary Meta Tags -->
-    <title>TimeShit - Aplikasi Timesheet Modern</title>
-    <meta name="title" content="TimeShit - Aplikasi Timesheet Modern" />
+    <title>TimeShit by Enambelas — Aplikasi Timesheet & Catat Jam Kerja</title>
+    <meta
+      name="title"
+      content="TimeShit by Enambelas — Aplikasi Timesheet & Catat Jam Kerja"
+    />
     <meta
       name="description"
-      content="TimeShit adalah aplikasi timesheet modern untuk mencatat jam kerja dengan detail aktivitas, lokasi, dan bukti. Export ke Excel, integrasi Google Drive, dan reminder harian."
+      content="TimeShit by Enambelas — aplikasi timesheet modern untuk mencatat jam kerja dengan detail aktivitas, lokasi, dan bukti. Export ke Excel, integrasi Google Drive, dan reminder harian. Gratis."
     />
     <meta
       name="keywords"
-      content="timesheet, aplikasi timesheet, catat jam kerja, time tracking, excel export, google drive, pwa, timesheet indonesia"
+      content="timeshit, timeshit enambelas, timeshit enambelas dev, timeshit by enambelas, enambelas, enambelas dev, aplikasi timesheet, catat jam kerja, time tracking, timesheet indonesia, excel export, google drive, pwa"
     />
-    <meta name="author" content="TimeShit" />
-    <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://timeshit.app/" />
+    <meta name="author" content="Enambelas" />
+    <meta name="publisher" content="Enambelas" />
+    <meta name="application-name" content="TimeShit" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="https://timeshit.enambelas.dev/" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://timeshit.app/" />
-    <meta property="og:title" content="TimeShit - Aplikasi Timesheet Modern" />
+    <meta property="og:url" content="https://timeshit.enambelas.dev/" />
+    <meta property="og:site_name" content="TimeShit by Enambelas" />
+    <meta
+      property="og:title"
+      content="TimeShit by Enambelas — Aplikasi Timesheet & Catat Jam Kerja"
+    />
     <meta
       property="og:description"
-      content="Catat jam kerja dengan detail aktivitas, lokasi, dan bukti. Export ke Excel, integrasi Google Drive, dan reminder harian."
+      content="Catat jam kerja dengan detail aktivitas, lokasi, dan bukti. Export ke Excel, integrasi Google Drive, dan reminder harian. Gratis."
     />
-    <meta property="og:image" content="/icons/icon-512x512.png" />
+    <meta
+      property="og:image"
+      content="https://timeshit.enambelas.dev/og-image.png"
+    />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Logo TimeShit by Enambelas — aplikasi timesheet"
+    />
     <meta property="og:locale" content="id_ID" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://timeshit.app/" />
+    <meta property="twitter:url" content="https://timeshit.enambelas.dev/" />
     <meta
       property="twitter:title"
-      content="TimeShit - Aplikasi Timesheet Modern"
+      content="TimeShit by Enambelas — Aplikasi Timesheet & Catat Jam Kerja"
     />
     <meta
       property="twitter:description"
-      content="Catat jam kerja dengan detail aktivitas, lokasi, dan bukti. Export ke Excel, integrasi Google Drive, dan reminder harian."
+      content="Catat jam kerja dengan detail aktivitas, lokasi, dan bukti. Export ke Excel, integrasi Google Drive, dan reminder harian. Gratis."
     />
-    <meta property="twitter:image" content="/icons/icon-512x512.png" />
+    <meta
+      property="twitter:image"
+      content="https://timeshit.enambelas.dev/og-image.png"
+    />
 
     <!-- Structured Data -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "TimeShit",
-        "description": "Aplikasi timesheet modern untuk mencatat jam kerja dengan detail aktivitas, lokasi, dan bukti.",
-        "url": "https://timeshit.app",
-        "applicationCategory": "BusinessApplication",
-        "operatingSystem": "Any",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "IDR"
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.8",
-          "ratingCount": "150"
-        }
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://timeshit.enambelas.dev/#organization",
+            "name": "Enambelas",
+            "url": "https://enambelas.dev",
+            "email": "hello@enambelas.dev",
+            "logo": "https://timeshit.enambelas.dev/icons/icon-512x512.png"
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://timeshit.enambelas.dev/#website",
+            "name": "TimeShit",
+            "alternateName": "TimeShit by Enambelas",
+            "url": "https://timeshit.enambelas.dev/",
+            "publisher": { "@id": "https://timeshit.enambelas.dev/#organization" },
+            "inLanguage": "id-ID"
+          },
+          {
+            "@type": "SoftwareApplication",
+            "name": "TimeShit",
+            "alternateName": "TimeShit by Enambelas",
+            "description": "Aplikasi timesheet modern untuk mencatat jam kerja dengan detail aktivitas, lokasi, dan bukti. Export ke Excel dan integrasi Google Drive.",
+            "url": "https://timeshit.enambelas.dev/",
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Web, Android, iOS",
+            "publisher": { "@id": "https://timeshit.enambelas.dev/#organization" },
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "IDR"
+            }
+          }
+        ]
       }
     </script>
 

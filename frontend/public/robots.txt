@@ -4,4 +4,4 @@ Disallow: /api/
 Disallow: /uploads/
 Disallow: /internal/
 
-Sitemap: https://timeshit.app/sitemap.xml
+Sitemap: https://timeshit.enambelas.dev/sitemap.xml

@@ -35,6 +35,16 @@
         Login dengan akun Google untuk menghubungkan<br>
         Google Drive dan menyimpan evidence Anda.
       </p>
+
+      <div class="text-text-tertiary text-xs text-center mt-6 space-x-3">
+        <router-link to="/privacy" class="hover:text-text-secondary transition-colors">Kebijakan Privasi</router-link>
+        <span class="opacity-40">&middot;</span>
+        <router-link to="/terms" class="hover:text-text-secondary transition-colors">Syarat &amp; Ketentuan</router-link>
+      </div>
+      <p class="text-text-tertiary text-xs text-center mt-2">
+        Lapor bug:
+        <a href="mailto:hello@enambelas.dev" class="hover:text-text-secondary transition-colors underline">hello@enambelas.dev</a>
+      </p>
     </div>
   </div>
 </template>

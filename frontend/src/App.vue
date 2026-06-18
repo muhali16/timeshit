@@ -1,7 +1,10 @@
 <template>
   <div class="min-h-screen text-text-primary md:pb-0">
+    <!-- Standalone routes (legal pages) render without app chrome -->
+    <router-view v-if="isStandalone" />
+
     <!-- Mobile Layout Wrapper -->
-    <div v-if="isMobile" class="flex flex-col fixed inset-0 z-0 overflow-hidden">
+    <div v-else-if="isMobile" class="flex flex-col fixed inset-0 z-0 overflow-hidden">
       <!-- Mobile Header -->
       <header class="flex-shrink-0 z-40 glass border-b-0 safe-area-top">
         <div
@@ -173,7 +176,7 @@
     </div>
 
     <!-- Desktop Layout: Floating Sidebar + Content -->
-    <div v-else class="flex min-h-screen">
+    <div v-else-if="!isMobile" class="flex min-h-screen">
       <!-- Floating Sidebar -->
       <aside
         class="w-[72px] xl:w-20 flex-shrink-0 p-4 flex flex-col items-center gap-4 fixed h-screen z-40"
@@ -336,11 +339,14 @@
 </template>
 
 <script setup>
-import { h, ref, onMounted, onUnmounted } from "vue";
+import { h, ref, computed, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "./stores/authStore.js";
 
 const $route = useRoute();
+
+// Routes that render standalone, without the app navigation chrome
+const isStandalone = computed(() => ["Privacy", "Terms"].includes($route.name));
 const router = useRouter();
 const authStore = useAuthStore();
 const profileOpen = ref(false);

@@ -5,6 +5,8 @@ import Timesheet from '../views/Timesheet.vue'
 import History from '../views/History.vue'
 import Login from '../views/Login.vue'
 import Settings from '../views/Settings.vue'
+import Privacy from '../views/Privacy.vue'
+import Terms from '../views/Terms.vue'
 
 const routes = [
   {
@@ -12,6 +14,18 @@ const routes = [
     name: 'Login',
     component: Login,
     meta: { guest: true },
+  },
+  {
+    path: '/privacy',
+    name: 'Privacy',
+    component: Privacy,
+    meta: { public: true },
+  },
+  {
+    path: '/terms',
+    name: 'Terms',
+    component: Terms,
+    meta: { public: true },
   },
   {
     path: '/',
@@ -41,6 +55,11 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
+  // Public pages (legal) are accessible without authentication
+  if (to.meta.public) {
+    return next()
+  }
+
   const authStore = useAuthStore()
 
   if (!authStore.initialized) {

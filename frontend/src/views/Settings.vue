@@ -1331,6 +1331,37 @@
         </div>
       </div>
 
+      <!-- About & Contact -->
+      <div class="glass rounded-2xl p-5">
+        <h3 class="text-sm font-semibold text-text-primary mb-1">Tentang TimeShit</h3>
+        <p class="text-xs text-text-tertiary leading-relaxed mb-4">
+          TimeShit by Enambelas — aplikasi timesheet untuk mencatat jam kerja.
+        </p>
+        <div class="flex flex-col gap-2.5 text-sm">
+          <a
+            href="mailto:hello@enambelas.dev"
+            class="flex items-center justify-between text-text-secondary hover:text-text-primary transition-colors"
+          >
+            <span>Lapor bug / kontak</span>
+            <span class="text-text-tertiary text-xs">hello@enambelas.dev</span>
+          </a>
+          <router-link
+            to="/privacy"
+            class="flex items-center justify-between text-text-secondary hover:text-text-primary transition-colors"
+          >
+            <span>Kebijakan Privasi</span>
+            <span class="text-text-tertiary">&rsaquo;</span>
+          </router-link>
+          <router-link
+            to="/terms"
+            class="flex items-center justify-between text-text-secondary hover:text-text-primary transition-colors"
+          >
+            <span>Syarat &amp; Ketentuan</span>
+            <span class="text-text-tertiary">&rsaquo;</span>
+          </router-link>
+        </div>
+      </div>
+
       <!-- Logout -->
       <div class="glass rounded-2xl p-5">
         <button

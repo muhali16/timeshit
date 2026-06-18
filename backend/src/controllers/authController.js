@@ -60,17 +60,19 @@ class AuthController {
       let userRows = await db.select().from(users).where(eq(users.email, email));
 
       if (userRows.length > 0) {
-        const updateData = {
-          name,
-          avatar,
-          updatedAt: new Date(),
-        };
+        // User sudah terdaftar: cukup refresh token Google OAuth (dibutuhkan
+        // agar upload ke Drive tetap jalan). JANGAN timpa name/avatar/settings
+        // karena bisa saja sudah dikustomisasi user lewat halaman Settings.
+        const updateData = {};
         if (accessToken) updateData.googleAccessToken = accessToken;
         if (refreshToken) updateData.googleRefreshToken = refreshToken;
         if (tokenExpiry) updateData.googleTokenExpiry = tokenExpiry;
 
-        await db.update(users).set(updateData).where(eq(users.email, email));
-        userRows = await db.select().from(users).where(eq(users.email, email));
+        if (Object.keys(updateData).length > 0) {
+          updateData.updatedAt = new Date();
+          await db.update(users).set(updateData).where(eq(users.email, email));
+          userRows = await db.select().from(users).where(eq(users.email, email));
+        }
       } else {
         const [created] = await db.insert(users).values({
           email,
