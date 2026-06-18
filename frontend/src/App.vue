@@ -3,7 +3,32 @@
     <!-- Standalone routes (legal pages) render without app chrome -->
     <router-view v-if="isStandalone" />
 
-    <!-- Mobile Layout Wrapper -->
+    <!-- Unauthenticated User Layout (minimal header with home button) -->
+    <div v-else-if="!authStore.isLoggedIn" class="flex flex-col min-h-screen">
+      <!-- Minimal Header for Unauthenticated Users -->
+      <header class="flex-shrink-0 z-40 glass border-b safe-area-top">
+        <div class="max-w-4xl mx-auto px-4 min-h-14 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <span class="text-lg font-bold text-text-primary tracking-tight">TimeShit</span>
+          </div>
+          <router-link to="/" class="text-sm font-medium px-4 py-2 rounded-xl bg-accent text-white hover:bg-accent-hover transition-colors">
+            Home
+          </router-link>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="flex-1 overflow-y-auto w-full">
+        <router-view />
+      </main>
+    </div>
+
+    <!-- Mobile Layout Wrapper (Authenticated Users) -->
     <div v-else-if="isMobile" class="flex flex-col fixed inset-0 z-0 overflow-hidden">
       <!-- Mobile Header -->
       <header class="flex-shrink-0 z-40 glass border-b-0 safe-area-top">
@@ -175,8 +200,8 @@
       </nav>
     </div>
 
-    <!-- Desktop Layout: Floating Sidebar + Content -->
-    <div v-else-if="!isMobile" class="flex min-h-screen">
+    <!-- Desktop Layout: Floating Sidebar + Content (Authenticated Users) -->
+    <div v-else-if="!isMobile && authStore.isLoggedIn" class="flex min-h-screen">
       <!-- Floating Sidebar -->
       <aside
         class="w-[72px] xl:w-20 flex-shrink-0 p-4 flex flex-col items-center gap-4 fixed h-screen z-40"
@@ -346,7 +371,9 @@ import { useAuthStore } from "./stores/authStore.js";
 const $route = useRoute();
 
 // Routes that render standalone, without the app navigation chrome
-const isStandalone = computed(() => ["Privacy", "Terms"].includes($route.name));
+const isStandalone = computed(() =>
+  ["Landing", "Privacy", "Terms"].includes($route.name)
+);
 const router = useRouter();
 const authStore = useAuthStore();
 const profileOpen = ref(false);
@@ -481,7 +508,7 @@ const SettingsIcon = {
 };
 
 const navItems = [
-  { path: "/", label: "Dashboard", shortLabel: "Home", icon: DashboardIcon },
+  { path: "/app", label: "Dashboard", shortLabel: "Home", icon: DashboardIcon },
   { path: "/timesheet", label: "Input", shortLabel: "Input", icon: InputIcon },
   {
     path: "/history",
@@ -492,7 +519,7 @@ const navItems = [
 ];
 
 const bottomNavItems = [
-  { path: "/", label: "Home", icon: DashboardIcon },
+  { path: "/app", label: "Home", icon: DashboardIcon },
   { path: "/timesheet", label: "Input", icon: InputIcon },
   { path: "/history", label: "Riwayat", icon: HistoryIcon },
   { path: "/settings", label: "Settings", icon: SettingsIcon },

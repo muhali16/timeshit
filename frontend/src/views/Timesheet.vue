@@ -812,7 +812,7 @@ async function handleSubmit() {
     } else {
       showToast("Timesheet berhasil disimpan", "success", 3000);
     }
-    router.push("/");
+    router.push("/app");
   } catch (err) {
     error.value =
       err.response?.data?.message || err.message || "Gagal menyimpan timesheet";

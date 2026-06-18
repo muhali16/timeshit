@@ -116,7 +116,9 @@ onMounted(() => {
 
 <style scoped>
 .legal-page {
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
   background: #ffffff;
   color: #1f2937;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial,

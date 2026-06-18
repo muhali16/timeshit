@@ -7,8 +7,15 @@ import Login from '../views/Login.vue'
 import Settings from '../views/Settings.vue'
 import Privacy from '../views/Privacy.vue'
 import Terms from '../views/Terms.vue'
+import Landing from '../views/Landing.vue'
 
 const routes = [
+  {
+    path: '/',
+    name: 'Landing',
+    component: Landing,
+    meta: { public: true },
+  },
   {
     path: '/login',
     name: 'Login',
@@ -28,7 +35,7 @@ const routes = [
     meta: { public: true },
   },
   {
-    path: '/',
+    path: '/app',
     name: 'Home',
     component: Home,
   },
@@ -55,19 +62,24 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  // Public pages (legal) are accessible without authentication
-  if (to.meta.public) {
-    return next()
-  }
-
   const authStore = useAuthStore()
 
   if (!authStore.initialized) {
     await authStore.fetchUser()
   }
 
+  // Logged-in users skip the public landing and go straight to the app
+  if (to.name === 'Landing' && authStore.isLoggedIn) {
+    return next('/app')
+  }
+
+  // Public pages (landing, legal) are accessible without authentication
+  if (to.meta.public) {
+    return next()
+  }
+
   if (to.meta.guest && authStore.isLoggedIn) {
-    return next('/')
+    return next('/app')
   }
 
   if (!to.meta.guest && !authStore.isLoggedIn) {
