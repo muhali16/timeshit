@@ -1571,7 +1571,7 @@ function computeDefaultPeriod(period, customConfig) {
   return { from: '', to: '' }
 }
 
-onMounted(() => {
+function applyDefaultPeriod() {
   const period = authStore.user?.defaultHistoryPeriod || 'current_month'
   const { from, to } = computeDefaultPeriod(
     period,
@@ -1584,8 +1584,19 @@ onMounted(() => {
   if (from) params.date_from = from
   if (to) params.date_to = to
   store.fetchEntries(params)
+}
+
+onMounted(() => {
+  applyDefaultPeriod()
   fetchAbsenceEntries()
 })
+
+watch(
+  () => authStore.user?.defaultHistoryPeriod,
+  () => {
+    applyDefaultPeriod()
+  }
+)
 
 onUnmounted(() => {
   document.removeEventListener('click', onEditLocClickOutside)
