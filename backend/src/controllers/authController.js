@@ -26,11 +26,25 @@ function getOAuthClient() {
 class AuthController {
   async googleRedirect(req, reply) {
     const oAuth2Client = getOAuthClient();
-    const url = oAuth2Client.generateAuthUrl({
+    const loginHint = req.query.login_hint;
+
+    const authUrlOptions = {
       access_type: "offline",
-      prompt: "consent",
       scope: SCOPES,
-    });
+    };
+
+    if (loginHint) {
+      // Returning account: prefill the hint so Google can re-auth silently.
+      // Refresh token already stored from the first login, so we don't force
+      // the consent screen again.
+      authUrlOptions.login_hint = loginHint;
+      authUrlOptions.prompt = "select_account";
+    } else {
+      // First login / generic flow: force consent to guarantee a refresh token.
+      authUrlOptions.prompt = "consent";
+    }
+
+    const url = oAuth2Client.generateAuthUrl(authUrlOptions);
     return reply.redirect(url);
   }
 

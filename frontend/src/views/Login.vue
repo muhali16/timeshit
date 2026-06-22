@@ -17,7 +17,7 @@
         </div>
 
         <button
-          @click="authStore.loginWithGoogle()"
+          @click="login"
           :disabled="loading"
           class="w-full flex items-center justify-center gap-3 px-5 py-3.5 bg-white text-gray-800 rounded-xl font-medium text-sm hover:bg-gray-50 active:bg-gray-100 transition-colors disabled:opacity-50"
         >
@@ -46,18 +46,35 @@
         <a href="mailto:hello@enambelas.dev" class="hover:text-text-secondary transition-colors underline">hello@enambelas.dev</a>
       </p>
     </div>
+
+    <AccountChooser
+      v-model="showChooser"
+      :accounts="recentAccounts"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/authStore.js'
+import AccountChooser from '../components/Common/AccountChooser.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
 const loading = ref(false)
 const error = ref('')
+const showChooser = ref(false)
+const recentAccounts = computed(() => authStore.recentAccounts)
+
+function login() {
+  if (recentAccounts.value.length > 0) {
+    showChooser.value = true
+    return
+  }
+  loading.value = true
+  authStore.loginWithGoogle()
+}
 
 onMounted(() => {
   if (route.query.error === 'no_code') {

@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-5">
     <!-- Header -->
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div>
         <h1 class="text-xl md:text-2xl font-bold text-text-primary tracking-tight">Riwayat</h1>
         <p class="text-text-tertiary text-sm mt-0.5">Semua entri timesheet</p>
@@ -9,18 +9,18 @@
       <div class="flex items-center gap-2">
         <button
           @click="openMarkAbsence"
-          class="px-3 py-2 glass glass-hover rounded-xl text-xs md:text-sm font-medium text-text-secondary hover:text-text-primary flex items-center gap-1.5 transition-all"
+          class="flex-1 md:flex-none justify-center px-3 py-2 glass glass-hover rounded-xl text-xs md:text-sm font-medium text-text-secondary hover:text-text-primary flex items-center gap-1.5 transition-all"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           Tidak Masuk
         </button>
         <router-link
           to="/timesheet"
-          class="px-3.5 py-2 btn-primary rounded-xl text-xs md:text-sm font-medium flex items-center gap-1.5"
+          class="flex-1 md:flex-none justify-center px-3.5 py-2 btn-primary rounded-xl text-xs md:text-sm font-medium flex items-center gap-1.5"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
           </svg>
           Timesheet Baru

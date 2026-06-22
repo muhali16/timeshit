@@ -259,17 +259,29 @@
                 </div>
             </div>
         </footer>
+
+        <AccountChooser
+            v-model="showChooser"
+            :accounts="recentAccounts"
+        />
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useAuthStore } from "../stores/authStore.js";
+import AccountChooser from "../components/Common/AccountChooser.vue";
 
 const authStore = useAuthStore();
 const loading = ref(false);
+const showChooser = ref(false);
+const recentAccounts = computed(() => authStore.recentAccounts);
 
 function login() {
+    if (recentAccounts.value.length > 0) {
+        showChooser.value = true;
+        return;
+    }
     loading.value = true;
     authStore.loginWithGoogle();
 }

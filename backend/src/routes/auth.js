@@ -6,6 +6,12 @@ async function authRoutes(fastify, options) {
     schema: {
       tags: ['Auth'],
       summary: 'Redirect to Google OAuth consent screen',
+      querystring: {
+        type: 'object',
+        properties: {
+          login_hint: { type: 'string' },
+        },
+      },
     },
     handler: authController.googleRedirect.bind(authController),
   });
