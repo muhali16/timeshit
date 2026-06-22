@@ -198,6 +198,21 @@ select {
   color: var(--color-text-tertiary);
 }
 
+/*
+ * iOS auto-zoom fix: Safari/WebKit zooms into any focused form control whose
+ * font-size is < 16px (viewport user-scalable=no does NOT prevent this).
+ * @supports (-webkit-touch-callout) matches iOS WebKit only, so desktop and
+ * Android keep the 14px design. !important beats inline/utility font sizes.
+ */
+@supports (-webkit-touch-callout: none) {
+  input,
+  select,
+  textarea,
+  .form-input {
+    font-size: 16px !important;
+  }
+}
+
 /* Buttons */
 .btn-primary {
   background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
