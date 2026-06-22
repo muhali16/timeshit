@@ -151,6 +151,8 @@ class AuthController {
             ? user.defaultEndTime.slice(0, 5)
             : null,
           defaultBreakMinutes: user.defaultBreakMinutes || 0,
+          defaultHistoryPeriod: user.defaultHistoryPeriod || "current_month",
+          defaultHistoryCustom: user.defaultHistoryCustom || null,
           locations: user.locations || [],
           textFilter: user.textFilter || {
             enabled: false,
