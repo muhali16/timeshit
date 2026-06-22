@@ -360,6 +360,10 @@
         </div>
       </main>
     </div>
+
+    <!-- Global PWA install affordances (rendered across all layouts) -->
+    <InstallAppButton />
+    <InstallInstructionsModal />
   </div>
 </template>
 
@@ -367,6 +371,8 @@
 import { h, ref, computed, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "./stores/authStore.js";
+import InstallAppButton from "./components/Common/InstallAppButton.vue";
+import InstallInstructionsModal from "./components/Common/InstallInstructionsModal.vue";
 
 const $route = useRoute();
 

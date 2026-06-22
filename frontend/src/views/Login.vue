@@ -31,6 +31,17 @@
         </button>
       </div>
 
+      <button
+        v-if="pwa.isInstallable.value"
+        @click="pwa.promptInstall"
+        class="w-full mt-3 flex items-center justify-center gap-2 px-5 py-3 rounded-xl glass glass-hover text-text-secondary text-sm font-medium active:scale-[0.98] transition"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        Install aplikasi ke perangkat
+      </button>
+
       <p class="text-text-tertiary text-xs text-center mt-5 leading-relaxed">
         Login dengan akun Google untuk menghubungkan<br>
         Google Drive dan menyimpan evidence Anda.
@@ -59,9 +70,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/authStore.js'
 import AccountChooser from '../components/Common/AccountChooser.vue'
+import { usePWAInstall } from '../composables/usePWAInstall.js'
 
 const route = useRoute()
 const authStore = useAuthStore()
+const pwa = usePWAInstall()
 const loading = ref(false)
 const error = ref('')
 const showChooser = ref(false)
