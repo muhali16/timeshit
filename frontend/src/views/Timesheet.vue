@@ -802,6 +802,32 @@ function undoParse() {
   parseToast.value.show = false;
 }
 
+function resetForm() {
+  form.tanggal = new Date().toISOString().split("T")[0];
+  form.jam_mulai = settings.defaultStartTime || "";
+  form.jam_selesai = settings.defaultEndTime || "";
+  form.lokasi = "";
+  form.rincian_tugas = "";
+  selectedFiles.value = [];
+  selectedLocation.value = "";
+  customLocation.value = "";
+  error.value = null;
+
+  if (settings.locations.length === 1) {
+    form.lokasi = settings.locations[0].name;
+  } else if (settings.locations.length > 1) {
+    const defaultLoc = settings.locations.find((l) => l.isDefault);
+    if (defaultLoc) {
+      selectedLocation.value = defaultLoc.name;
+      form.lokasi = defaultLoc.name;
+    }
+  }
+
+  nextTick(() => {
+    if (rincianTextarea.value) autoResize(rincianTextarea.value);
+  });
+}
+
 async function handleSubmit() {
   if (locationMode.value === "single" && !form.lokasi.trim()) {
     form.lokasi = settings.locations[0]?.name || "";
@@ -829,6 +855,7 @@ async function handleSubmit() {
     } else {
       showToast("Timesheet berhasil disimpan", "success", 3000);
     }
+    resetForm();
   } catch (err) {
     error.value =
       err.response?.data?.message || err.message || "Gagal menyimpan timesheet";
