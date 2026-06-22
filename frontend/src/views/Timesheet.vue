@@ -259,6 +259,8 @@
             :class="{ 'border-accent/40 bg-accent/5': dragOver }"
             @dragenter.prevent="dragOver = true"
             @dragleave.prevent="dragOver = false"
+            @mouseenter="onDropZoneMouseEnter"
+            @mouseleave="onDropZoneMouseLeave"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -715,6 +717,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   document.removeEventListener("click", onLocClickOutside);
+  document.removeEventListener("paste", handleGlobalPasteFiles);
 });
 
 function formatFileSize(bytes) {
@@ -744,6 +747,20 @@ function handlePasteFiles(event) {
     selectedFiles.value.push(...files);
     showToast(`${files.length} file dari clipboard ditambahkan`, "info", 2000);
   }
+}
+
+function handleGlobalPasteFiles(event) {
+  if (document.activeElement === rincianTextarea.value) return;
+  event.preventDefault();
+  handlePasteFiles(event);
+}
+
+function onDropZoneMouseEnter() {
+  document.addEventListener("paste", handleGlobalPasteFiles);
+}
+
+function onDropZoneMouseLeave() {
+  document.removeEventListener("paste", handleGlobalPasteFiles);
 }
 
 function removeFile(index) {
@@ -812,7 +829,6 @@ async function handleSubmit() {
     } else {
       showToast("Timesheet berhasil disimpan", "success", 3000);
     }
-    router.push("/app");
   } catch (err) {
     error.value =
       err.response?.data?.message || err.message || "Gagal menyimpan timesheet";
