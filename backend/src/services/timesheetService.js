@@ -10,6 +10,7 @@ class TimesheetService {
     endTime,
     location,
     activity,
+    tasks,
     durationMinutes,
     breakMinutes,
   }) {
@@ -22,6 +23,7 @@ class TimesheetService {
         endTime,
         location,
         activity,
+        tasks: tasks || [],
         durationMinutes,
         breakMinutes: breakMinutes || 0,
       })
@@ -115,6 +117,7 @@ class TimesheetService {
     if (updates.endTime !== undefined) updateData.endTime = updates.endTime;
     if (updates.location !== undefined) updateData.location = updates.location;
     if (updates.activity !== undefined) updateData.activity = updates.activity;
+    if (updates.tasks !== undefined) updateData.tasks = updates.tasks;
     if (updates.durationMinutes !== undefined) updateData.durationMinutes = updates.durationMinutes;
     if (updates.breakMinutes !== undefined) updateData.breakMinutes = updates.breakMinutes;
 
@@ -229,6 +232,7 @@ class TimesheetService {
         istirahat: row.breakMinutes || 0,
         lokasi: row.location,
         rincian_tugas: row.activity,
+        tasks: row.tasks || [],
         evidence,
         created_at: row.createdAt,
         updated_at: row.updatedAt,

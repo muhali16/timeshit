@@ -261,9 +261,7 @@
               </div>
               <div>
                 <label class="block text-xs font-medium text-text-secondary mb-1.5">Dari — Bulan</label>
-                <select v-model.number="form.defaultHistoryCustom.fromMonthOffset" class="form-input">
-                  <option v-for="opt in monthOffsetOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
-                </select>
+                <Select v-model="form.defaultHistoryCustom.fromMonthOffset" :options="monthOffsetOptions" />
               </div>
               <div>
                 <label class="block text-xs font-medium text-text-secondary mb-1.5">Sampai — Tanggal</label>
@@ -278,9 +276,7 @@
               </div>
               <div>
                 <label class="block text-xs font-medium text-text-secondary mb-1.5">Sampai — Bulan</label>
-                <select v-model.number="form.defaultHistoryCustom.toMonthOffset" class="form-input">
-                  <option v-for="opt in monthOffsetOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
-                </select>
+                <Select v-model="form.defaultHistoryCustom.toMonthOffset" :options="monthOffsetOptions" />
               </div>
             </div>
             <p v-if="customPeriodPreview" class="text-accent text-xs font-medium">
@@ -737,6 +733,180 @@
                 class="glass rounded-xl p-3 text-sm font-mono text-text-secondary whitespace-pre-wrap leading-relaxed"
               >
                 {{ playgroundResult || "(Tidak ada task yang ditemukan)" }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Report Config -->
+        <div v-if="activeTab === 'preferensi'" class="glass rounded-2xl p-5 md:p-6">
+          <h2
+            class="text-sm md:text-base font-semibold text-text-primary mb-1 flex items-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4 text-accent"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+              />
+            </svg>
+            Laporan Standup &amp; Wrap Up
+          </h2>
+          <p class="text-text-tertiary text-xs mb-4 leading-relaxed">
+            Atur kalimat laporan yang dihasilkan tombol Kopi Standup / Kopi Wrap
+            Up di halaman Timesheet.
+          </p>
+
+          <div class="space-y-4">
+            <!-- Symbols -->
+            <div class="glass rounded-xl p-3.5 grid grid-cols-2 gap-3">
+              <div>
+                <label
+                  class="block text-[10px] font-medium text-text-tertiary mb-1 uppercase tracking-wide"
+                  >Marker judul task</label
+                >
+                <input
+                  v-model="form.reportConfig.marker"
+                  type="text"
+                  placeholder="Contoh: ###, ##, ▶"
+                  class="form-input text-sm"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-[10px] font-medium text-text-tertiary mb-1 uppercase tracking-wide"
+                  >Simbol list</label
+                >
+                <input
+                  v-model="form.reportConfig.bullet"
+                  type="text"
+                  placeholder="Contoh: *, -, •"
+                  class="form-input text-sm"
+                />
+              </div>
+            </div>
+
+            <!-- Standup -->
+            <div class="glass rounded-xl p-3.5 space-y-2.5">
+              <h3 class="text-sm font-medium text-text-primary">
+                Standup (rencana pagi)
+              </h3>
+              <div>
+                <label
+                  class="block text-[10px] font-medium text-text-tertiary mb-1 uppercase tracking-wide"
+                  >Salam pembuka</label
+                >
+                <input
+                  v-model="form.reportConfig.standup.greeting"
+                  type="text"
+                  class="form-input text-sm"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-[10px] font-medium text-text-tertiary mb-1 uppercase tracking-wide"
+                  >Kalimat tiap task</label
+                >
+                <input
+                  v-model="form.reportConfig.standup.bullet"
+                  type="text"
+                  class="form-input text-sm"
+                />
+              </div>
+            </div>
+
+            <!-- Wrap up -->
+            <div class="glass rounded-xl p-3.5 space-y-2.5">
+              <h3 class="text-sm font-medium text-text-primary">
+                Wrap Up (hasil malam)
+              </h3>
+              <div>
+                <label
+                  class="block text-[10px] font-medium text-text-tertiary mb-1 uppercase tracking-wide"
+                  >Salam pembuka</label
+                >
+                <input
+                  v-model="form.reportConfig.wrapup.greeting"
+                  type="text"
+                  class="form-input text-sm"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-[10px] font-medium text-text-tertiary mb-1 uppercase tracking-wide"
+                  >Sub-label sebelum status</label
+                >
+                <input
+                  v-model="form.reportConfig.wrapup.sublabel"
+                  type="text"
+                  placeholder="Contoh: Sesudah:"
+                  class="form-input text-sm"
+                />
+              </div>
+
+              <div>
+                <label
+                  class="block text-[10px] font-medium text-text-tertiary mb-1.5 uppercase tracking-wide"
+                  >Status &amp; kalimat hasilnya</label
+                >
+                <div class="space-y-2">
+                  <div
+                    v-for="(s, si) in form.reportConfig.wrapup.statuses"
+                    :key="si"
+                    class="flex gap-2 items-start glass rounded-lg p-2.5"
+                  >
+                    <div class="flex-1 space-y-1.5">
+                      <input
+                        v-model="s.label"
+                        type="text"
+                        placeholder="Label (mis. Selesai & PR)"
+                        class="form-input text-sm py-1.5"
+                      />
+                      <input
+                        v-model="s.bullet"
+                        type="text"
+                        placeholder="Kalimat hasil (mis. Task ini sudah saya kerjakan...)"
+                        class="form-input text-sm py-1.5"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      @click="removeStatus(si)"
+                      :disabled="form.reportConfig.wrapup.statuses.length <= 1"
+                      class="p-1.5 text-text-tertiary hover:text-danger rounded-lg flex-shrink-0 disabled:opacity-30"
+                      aria-label="Hapus status"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  @click="addStatus"
+                  class="mt-2 text-xs font-medium text-accent hover:text-accent-hover transition-colors"
+                >
+                  + Status
+                </button>
+              </div>
+
+              <div>
+                <label
+                  class="block text-[10px] font-medium text-text-tertiary mb-1 uppercase tracking-wide"
+                  >Status default untuk task baru</label
+                >
+                <Select
+                  v-model="form.reportConfig.wrapup.defaultStatus"
+                  :options="defaultStatusOptions"
+                />
               </div>
             </div>
           </div>
@@ -1443,7 +1613,9 @@ import { useRouter } from "vue-router";
 import api from "../services/api.js";
 import { useAuthStore } from "../stores/authStore.js";
 import { parseWrapUpText } from "../utils/textFilter.js";
+import { DEFAULT_REPORT_CONFIG } from "../utils/report.js";
 import { usePWAInstall } from "../composables/usePWAInstall.js";
+import Select from "../components/Common/Select.vue";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -1613,6 +1785,13 @@ const monthOffsetOptions = [
   { value: 2, label: "2 Bulan Ke Depan" },
 ];
 
+const defaultStatusOptions = computed(() =>
+  form.value.reportConfig.wrapup.statuses.map((s) => ({
+    value: s.id,
+    label: s.label,
+  })),
+);
+
 const customPeriodPreview = computed(() => {
   if (form.value.defaultHistoryPeriod !== "custom") return "";
   const c = form.value.defaultHistoryCustom;
@@ -1641,7 +1820,26 @@ const form = ref({
   defaultHistoryCustom: { fromDay: 1, fromMonthOffset: -1, toDay: 1, toMonthOffset: 0 },
   locations: [],
   textFilter: { ...defaultTextFilter },
+  reportConfig: JSON.parse(JSON.stringify(DEFAULT_REPORT_CONFIG)),
 });
+
+let statusIdSeq = 0;
+function addStatus() {
+  form.value.reportConfig.wrapup.statuses.push({
+    id: `s${Date.now()}_${statusIdSeq++}`,
+    label: "",
+    bullet: "",
+  });
+}
+
+function removeStatus(si) {
+  const statuses = form.value.reportConfig.wrapup.statuses;
+  if (statuses.length <= 1) return;
+  const [removed] = statuses.splice(si, 1);
+  if (form.value.reportConfig.wrapup.defaultStatus === removed.id) {
+    form.value.reportConfig.wrapup.defaultStatus = statuses[0].id;
+  }
+}
 
 function selectTz(value) {
   form.value.timezone = value;
@@ -1749,6 +1947,26 @@ onMounted(() => {
           }),
         ),
         defaultCategory: tf.defaultCategory || "Belum Dikerjakan",
+      };
+    }
+    const rc = user.reportConfig;
+    if (rc && typeof rc === "object") {
+      const statuses = (rc.wrapup?.statuses || DEFAULT_REPORT_CONFIG.wrapup.statuses).map(
+        (s) => ({ id: s.id, label: s.label, bullet: s.bullet }),
+      );
+      form.value.reportConfig = {
+        marker: rc.marker || DEFAULT_REPORT_CONFIG.marker,
+        bullet: rc.bullet || DEFAULT_REPORT_CONFIG.bullet,
+        standup: {
+          greeting: rc.standup?.greeting ?? DEFAULT_REPORT_CONFIG.standup.greeting,
+          bullet: rc.standup?.bullet ?? DEFAULT_REPORT_CONFIG.standup.bullet,
+        },
+        wrapup: {
+          greeting: rc.wrapup?.greeting ?? DEFAULT_REPORT_CONFIG.wrapup.greeting,
+          sublabel: rc.wrapup?.sublabel ?? DEFAULT_REPORT_CONFIG.wrapup.sublabel,
+          defaultStatus: rc.wrapup?.defaultStatus || statuses[0]?.id || "",
+          statuses,
+        },
       };
     }
     newKeyword.value = form.value.textFilter.categories.map(() => "");

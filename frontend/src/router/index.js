@@ -5,6 +5,7 @@ import Timesheet from '../views/Timesheet.vue'
 import History from '../views/History.vue'
 import Login from '../views/Login.vue'
 import Settings from '../views/Settings.vue'
+import Tools from '../views/Tools.vue'
 import Privacy from '../views/Privacy.vue'
 import Terms from '../views/Terms.vue'
 import Landing from '../views/Landing.vue'
@@ -48,6 +49,11 @@ const routes = [
     path: '/history',
     name: 'History',
     component: History,
+  },
+  {
+    path: '/tools',
+    name: 'Tools',
+    component: Tools,
   },
   {
     path: '/settings',

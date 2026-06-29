@@ -41,6 +41,7 @@ const timesheetCreateSchema = {
       jam_selesai: { type: 'string', pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$' },
       lokasi: { type: 'string' },
       rincian_tugas: { type: 'string' },
+      tasks: { type: 'array', items: { type: 'object', additionalProperties: true } },
     },
   },
   response: {
@@ -153,6 +154,7 @@ async function timesheetRoutes(fastify, options) {
           jam_selesai: { type: 'string', pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$' },
           lokasi: { type: 'string' },
           rincian_tugas: { type: 'string' },
+          tasks: { type: 'array', items: { type: 'object', additionalProperties: true } },
         },
       },
       response: {
