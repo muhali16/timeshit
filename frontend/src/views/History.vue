@@ -61,34 +61,23 @@
       <div class="grid grid-cols-2 gap-3 md:flex md:items-end md:gap-4">
         <div>
           <label class="block text-xs text-text-tertiary mb-1.5 font-medium">Dari</label>
-          <input
+          <DatePicker
             v-model="filters.date_from"
-            type="date"
-            class="form-input"
-            @change="applyFilters"
+            placeholder="Dari"
+            @update:model-value="applyFilters"
           />
         </div>
         <div>
           <label class="block text-xs text-text-tertiary mb-1.5 font-medium">Sampai</label>
-          <input
+          <DatePicker
             v-model="filters.date_to"
-            type="date"
-            class="form-input"
-            @change="applyFilters"
+            placeholder="Sampai"
+            @update:model-value="applyFilters"
           />
         </div>
         <div>
           <label class="block text-xs text-text-tertiary mb-1.5 font-medium">Urutkan</label>
-          <select
-            v-model="sortOption"
-            class="form-input text-sm"
-          >
-            <option value="date_asc">Tanggal (Awal)</option>
-            <option value="date_desc">Tanggal (Terbaru)</option>
-            <option value="duration_asc">Durasi (Terkecil)</option>
-            <option value="duration_desc">Durasi (Terbesar)</option>
-            <option value="location">Lokasi (A-Z)</option>
-          </select>
+          <Select v-model="sortOption" :options="sortOptions" />
         </div>
         <div class="col-span-2 flex flex-wrap items-center gap-3 md:ml-auto md:col-span-1">
           <button
@@ -392,7 +381,7 @@
 
           <div>
             <label class="block text-xs font-medium text-text-secondary mb-1.5">Tanggal</label>
-            <input v-model="absenceForm.entry_date" type="date" class="form-input" />
+            <DatePicker v-model="absenceForm.entry_date" />
           </div>
 
           <div>
@@ -478,7 +467,7 @@
 
               <div>
                 <label class="block text-xs font-medium text-text-secondary mb-1.5">Tanggal</label>
-                <input v-model="editForm.tanggal" type="date" class="form-input" />
+                <DatePicker v-model="editForm.tanggal" />
               </div>
 
               <div class="grid grid-cols-2 gap-3">
@@ -798,11 +787,11 @@
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-xs text-text-tertiary mb-1.5 font-medium">Dari Tanggal</label>
-              <input v-model="exportForm.date_from" type="date" class="form-input" />
+              <DatePicker v-model="exportForm.date_from" placeholder="Dari" />
             </div>
             <div>
               <label class="block text-xs text-text-tertiary mb-1.5 font-medium">Sampai Tanggal</label>
-              <input v-model="exportForm.date_to" type="date" class="form-input" />
+              <DatePicker v-model="exportForm.date_to" placeholder="Sampai" />
             </div>
           </div>
 
@@ -869,29 +858,11 @@
             <div v-if="exportForm.absence_mode === 'same_sheet_merged'" class="space-y-2 mt-2">
               <div>
                 <label class="block text-[11px] text-text-tertiary font-medium mb-1">Alasan absence masuk ke kolom</label>
-                <select v-model="exportForm.absence_alasan_column" class="form-input text-sm py-2">
-                  <option value="">-- Pilih kolom --</option>
-                  <option
-                    v-for="col in exportColumns.filter(c => c.checked && c.key !== 'tanggal' && c.key !== 'hari')"
-                    :key="col.key"
-                    :value="col.key"
-                  >
-                    {{ col.alias || col.label }}
-                  </option>
-                </select>
+                <Select v-model="exportForm.absence_alasan_column" :options="absenceColumnOptions" placeholder="-- Pilih kolom --" />
               </div>
               <div>
                 <label class="block text-[11px] text-text-tertiary font-medium mb-1">Catatan absence masuk ke kolom</label>
-                <select v-model="exportForm.absence_catatan_column" class="form-input text-sm py-2">
-                  <option value="">-- Pilih kolom --</option>
-                  <option
-                    v-for="col in exportColumns.filter(c => c.checked && c.key !== 'tanggal' && c.key !== 'hari')"
-                    :key="col.key"
-                    :value="col.key"
-                  >
-                    {{ col.alias || col.label }}
-                  </option>
-                </select>
+                <Select v-model="exportForm.absence_catatan_column" :options="absenceColumnOptions" placeholder="-- Pilih kolom --" />
               </div>
             </div>
           </div>
@@ -1016,6 +987,8 @@ import { reactive, computed, ref, onMounted, onUnmounted, watch, nextTick } from
 import { useTimesheetStore } from '../stores/timesheetStore.js'
 import { useAuthStore } from '../stores/authStore.js'
 import api from '../services/api.js'
+import DatePicker from '../components/Common/DatePicker.vue'
+import Select from '../components/Common/Select.vue'
 
 const store = useTimesheetStore()
 const authStore = useAuthStore()
@@ -1031,6 +1004,19 @@ const filters = reactive({
 })
 
 const sortOption = ref('date_asc')
+const sortOptions = [
+  { value: 'date_asc', label: 'Tanggal (Awal)' },
+  { value: 'date_desc', label: 'Tanggal (Terbaru)' },
+  { value: 'duration_asc', label: 'Durasi (Terkecil)' },
+  { value: 'duration_desc', label: 'Durasi (Terbesar)' },
+  { value: 'location', label: 'Lokasi (A-Z)' },
+]
+const absenceColumnOptions = computed(() => [
+  { value: '', label: '-- Pilih kolom --' },
+  ...exportColumns.value
+    .filter((c) => c.checked && c.key !== 'tanggal' && c.key !== 'hari')
+    .map((c) => ({ value: c.key, label: c.alias || c.label })),
+])
 
 const sortedEntries = computed(() => {
   const list = [...entries.value]

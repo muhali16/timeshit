@@ -66,6 +66,7 @@ async function settingsRoutes(fastify, options) {
               defaultCategory: { type: 'string' },
             },
           },
+          reportConfig: { type: 'object', additionalProperties: true },
         },
       },
       response: {

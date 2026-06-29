@@ -2,6 +2,7 @@ const { google } = require("googleapis");
 const { db } = require("../database/connection");
 const { users } = require("../database/schema");
 const { eq } = require("drizzle-orm");
+const { DEFAULT_REPORT_CONFIG } = require("../config/reportDefaults");
 
 const OAUTH_CLIENT_ID = process.env.GOOGLE_OAUTH_CLIENT_ID;
 const OAUTH_CLIENT_SECRET = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
@@ -213,6 +214,7 @@ class AuthController {
             ],
             defaultCategory: "Belum Dikerjakan",
           },
+          reportConfig: user.reportConfig || DEFAULT_REPORT_CONFIG,
           createdAt: user.createdAt,
         },
       });

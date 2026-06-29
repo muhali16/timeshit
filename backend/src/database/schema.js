@@ -11,6 +11,7 @@ const {
   jsonb,
 } = require("drizzle-orm/pg-core");
 const { relations } = require("drizzle-orm");
+const { DEFAULT_REPORT_CONFIG } = require("../config/reportDefaults");
 
 const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -73,6 +74,7 @@ const users = pgTable("users", {
     ],
     defaultCategory: "Belum Dikerjakan",
   }),
+  reportConfig: jsonb("report_config").default(DEFAULT_REPORT_CONFIG),
   defaultBreakMinutes: integer("default_break_minutes").default(0),
   defaultHistoryPeriod: varchar("default_history_period", { length: 30 }).default("current_month"),
   defaultHistoryCustom: jsonb("default_history_custom"),
@@ -90,6 +92,7 @@ const timesheets = pgTable("timesheets", {
   endTime: time("end_time").notNull(),
   location: varchar("location", { length: 255 }),
   activity: text("activity"),
+  tasks: jsonb("tasks").default([]),
   durationMinutes: integer("duration_minutes"),
   breakMinutes: integer("break_minutes").default(0),
   createdAt: timestamp("created_at").defaultNow(),

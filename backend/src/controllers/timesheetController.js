@@ -52,7 +52,8 @@ class TimesheetController {
     try {
       const body = req.body || {};
 
-      const { tanggal, jam_mulai, jam_selesai, lokasi, rincian_tugas } = body;
+      const { tanggal, jam_mulai, jam_selesai, lokasi, rincian_tugas, tasks } =
+        body;
 
       const required = {
         tanggal,
@@ -97,6 +98,7 @@ class TimesheetController {
         endTime: jam_selesai,
         location: lokasi,
         activity: rincian_tugas,
+        tasks,
         durationMinutes,
         breakMinutes,
       });
@@ -174,7 +176,8 @@ class TimesheetController {
       const { id } = req.params;
       const body = req.body || {};
 
-      const { tanggal, jam_mulai, jam_selesai, lokasi, rincian_tugas } = body;
+      const { tanggal, jam_mulai, jam_selesai, lokasi, rincian_tugas, tasks } =
+        body;
 
       const existing = await timesheetService.getTimesheetById(id, req.userId);
       if (!existing) {
@@ -190,6 +193,7 @@ class TimesheetController {
       if (jam_selesai !== undefined) updates.endTime = jam_selesai;
       if (lokasi !== undefined) updates.location = lokasi;
       if (rincian_tugas !== undefined) updates.activity = rincian_tugas;
+      if (tasks !== undefined) updates.tasks = tasks;
 
       // Recalculate duration if times changed
       if (jam_mulai !== undefined || jam_selesai !== undefined) {

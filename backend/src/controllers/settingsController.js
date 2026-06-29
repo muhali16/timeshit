@@ -2,6 +2,7 @@ const { db } = require('../database/connection');
 const { users } = require('../database/schema');
 const { eq } = require('drizzle-orm');
 const { google } = require('googleapis');
+const { DEFAULT_REPORT_CONFIG } = require('../config/reportDefaults');
 
 class SettingsController {
   async get(req, reply) {
@@ -44,6 +45,7 @@ class SettingsController {
             ],
             defaultCategory: 'Belum Dikerjakan'
           },
+          reportConfig: user.reportConfig || DEFAULT_REPORT_CONFIG,
           createdAt: user.createdAt,
         },
       });
@@ -58,7 +60,7 @@ class SettingsController {
 
   async update(req, reply) {
     try {
-      const { name, timezone, notificationEnabled, notificationTime, googleDriveFolderId, defaultStartTime, defaultEndTime, defaultBreakMinutes, locations, textFilter, defaultHistoryPeriod, defaultHistoryCustom } = req.body;
+      const { name, timezone, notificationEnabled, notificationTime, googleDriveFolderId, defaultStartTime, defaultEndTime, defaultBreakMinutes, locations, textFilter, reportConfig, defaultHistoryPeriod, defaultHistoryCustom } = req.body;
 
       const updateData = { updatedAt: new Date() };
       if (name !== undefined) updateData.name = name;
@@ -157,6 +159,40 @@ class SettingsController {
           defaultCategory: textFilter.defaultCategory || 'Belum Dikerjakan',
         };
       }
+      if (reportConfig !== undefined) {
+        if (typeof reportConfig !== 'object' || reportConfig === null) {
+          return reply.status(400).send({
+            success: false,
+            message: 'reportConfig harus berupa object',
+          });
+        }
+        const su = reportConfig.standup || {};
+        const wu = reportConfig.wrapup || {};
+        if (!Array.isArray(wu.statuses) || wu.statuses.length === 0) {
+          return reply.status(400).send({
+            success: false,
+            message: 'reportConfig.wrapup.statuses harus berisi minimal 1 status',
+          });
+        }
+        updateData.reportConfig = {
+          marker: String(reportConfig.marker || '###'),
+          bullet: String(reportConfig.bullet || '*'),
+          standup: {
+            greeting: String(su.greeting || ''),
+            bullet: String(su.bullet || ''),
+          },
+          wrapup: {
+            greeting: String(wu.greeting || ''),
+            sublabel: String(wu.sublabel || ''),
+            defaultStatus: String(wu.defaultStatus || wu.statuses[0].id),
+            statuses: wu.statuses.map((s) => ({
+              id: String(s.id),
+              label: String(s.label || s.id),
+              bullet: String(s.bullet || ''),
+            })),
+          },
+        };
+      }
       if (locations !== undefined) {
         if (!Array.isArray(locations)) {
           return reply.status(400).send({
@@ -213,6 +249,7 @@ class SettingsController {
             ],
             defaultCategory: 'Belum Dikerjakan'
           },
+          reportConfig: userRows[0].reportConfig || DEFAULT_REPORT_CONFIG,
         },
       });
     } catch (err) {
