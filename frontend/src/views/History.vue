@@ -1529,8 +1529,15 @@ function computeDefaultPeriod(period, customConfig) {
   if (period === 'custom') {
     if (!customConfig) return { from: '', to: '' }
     const { fromDay, fromMonthOffset, toDay, toMonthOffset } = customConfig
-    const fromDate = new Date(today.getFullYear(), today.getMonth() + (fromMonthOffset || 0), fromDay || 1)
-    const toDate = new Date(today.getFullYear(), today.getMonth() + (toMonthOffset || 0), toDay || 1)
+    // Anchor to the recurring cycle that CONTAINS today, not a fixed month offset.
+    // Offsets only define span (months between from and to). Once today passes
+    // toDay, the window rolls forward to the next cycle.
+    // ponytail: Date() rolls day overflow (e.g. toDay 31 in Feb) — acceptable.
+    const span = (toMonthOffset || 0) - (fromMonthOffset || 0)
+    let endMonth = today.getMonth()
+    if (today.getDate() > (toDay || 1)) endMonth += 1
+    const toDate = new Date(today.getFullYear(), endMonth, toDay || 1)
+    const fromDate = new Date(today.getFullYear(), endMonth - span, fromDay || 1)
     return { from: fmt(fromDate), to: fmt(toDate) }
   }
 

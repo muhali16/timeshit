@@ -1619,8 +1619,12 @@ const customPeriodPreview = computed(() => {
   if (!c.fromDay || !c.toDay) return "";
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
   const today = new Date();
-  const fromDate = new Date(today.getFullYear(), today.getMonth() + c.fromMonthOffset, c.fromDay);
-  const toDate = new Date(today.getFullYear(), today.getMonth() + c.toMonthOffset, c.toDay);
+  // Mirror History.computeDefaultPeriod: anchor to cycle containing today.
+  const span = (c.toMonthOffset || 0) - (c.fromMonthOffset || 0);
+  let endMonth = today.getMonth();
+  if (today.getDate() > c.toDay) endMonth += 1;
+  const toDate = new Date(today.getFullYear(), endMonth, c.toDay);
+  const fromDate = new Date(today.getFullYear(), endMonth - span, c.fromDay);
   const fmt = (d) => `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
   return `${fmt(fromDate)} — ${fmt(toDate)}`;
 });
