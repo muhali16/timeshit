@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-7xl mx-auto px-4 md:px-8">
+  <div>
     <div class="mb-5 md:mb-8">
       <h1 class="text-xl md:text-2xl font-bold text-text-primary tracking-tight">
         Tools
