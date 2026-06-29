@@ -35,11 +35,10 @@ class AuthController {
     };
 
     if (loginHint) {
-      // Returning account: prefill the hint so Google can re-auth silently.
-      // Refresh token already stored from the first login, so we don't force
-      // the consent screen again.
+      // Returning account: prefill the hint and omit `prompt` so Google
+      // skips the picker and continues straight through when that account
+      // is already signed in. (prompt=select_account would force the picker.)
       authUrlOptions.login_hint = loginHint;
-      authUrlOptions.prompt = "select_account";
     } else {
       // First login / generic flow: force consent to guarantee a refresh token.
       authUrlOptions.prompt = "consent";
