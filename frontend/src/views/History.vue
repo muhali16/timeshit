@@ -52,12 +52,12 @@
         ]"
       >
         Tidak Masuk
-        <span v-if="absenceEntries.length > 0" class="ml-1.5 px-1.5 py-0.5 text-[10px] bg-bg-primary/60 rounded-full">{{ absenceEntries.length }}</span>
+        <span v-if="filteredAbsenceEntries.length > 0" class="ml-1.5 px-1.5 py-0.5 text-[10px] bg-bg-primary/60 rounded-full">{{ filteredAbsenceEntries.length }}</span>
       </button>
     </div>
 
     <!-- Filters -->
-    <div v-if="activeTab === 'entries'" class="glass rounded-2xl p-4 md:p-5">
+    <div class="glass rounded-2xl p-4 md:p-5">
       <div class="grid grid-cols-2 gap-3 md:flex md:items-end md:gap-4">
         <div>
           <label class="block text-xs text-text-tertiary mb-1.5 font-medium">Dari</label>
@@ -282,7 +282,7 @@
 
     <!-- Absence Tab -->
     <div v-if="activeTab === 'absence'" class="space-y-2.5">
-      <div v-if="absenceEntries.length === 0" class="text-center py-12 glass rounded-2xl">
+      <div v-if="filteredAbsenceEntries.length === 0" class="text-center py-12 glass rounded-2xl">
         <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-danger/10 flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-danger/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -296,7 +296,7 @@
         <!-- Mobile -->
         <div class="space-y-2.5 md:hidden">
           <div
-            v-for="entry in absenceEntries"
+            v-for="entry in filteredAbsenceEntries"
             :key="entry.id"
             class="glass rounded-2xl p-4 border-l-2"
             :style="{ borderLeftColor: entry.reason?.color || '#ef4444' }"
@@ -326,7 +326,7 @@
         <!-- Desktop masonry -->
         <div class="hidden md:block masonry-2 lg:masonry-3">
           <div
-            v-for="entry in absenceEntries"
+            v-for="entry in filteredAbsenceEntries"
             :key="entry.id"
             class="glass rounded-2xl p-5 masonry-item mb-4 border-l-2"
             :style="{ borderLeftColor: entry.reason?.color || '#ef4444' }"
@@ -1579,9 +1579,10 @@ function applyDefaultPeriod() {
   store.fetchEntries(params)
 }
 
-onMounted(() => {
+onMounted(async () => {
   applyDefaultPeriod()
-  fetchAbsenceEntries()
+  await fetchAbsenceEntries()
+  syncHolidayAbsences()
 })
 
 watch(
@@ -1607,6 +1608,18 @@ const absenceEntries = ref([])
 const absenceReasonOptions = ref([])
 const absenceHolidayInfo = ref(null)
 
+// entryDate is 'YYYY-MM-DD' — ISO strings compare lexically
+const filteredAbsenceEntries = computed(() => {
+  const list = absenceEntries.value.filter(e => {
+    if (filters.date_from && e.entryDate < filters.date_from) return false
+    if (filters.date_to && e.entryDate > filters.date_to) return false
+    return true
+  })
+  // only date sorts apply to absence; others fall back to ascending date
+  if (sortOption.value === 'date_desc') return list.sort((a, b) => b.entryDate.localeCompare(a.entryDate))
+  return list.sort((a, b) => a.entryDate.localeCompare(b.entryDate))
+})
+
 async function fetchAbsenceEntries() {
   try {
     const { data } = await api.get('/absence')
@@ -1620,6 +1633,22 @@ async function fetchAbsenceEntries() {
         tanggalFull: `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`,
       }
     })
+  } catch { /* ignore */ }
+}
+
+// Auto-mark any holiday from Settings that has no absence entry yet. Silent + idempotent.
+async function syncHolidayAbsences() {
+  try {
+    const { data } = await api.get('/holidays')
+    const existing = new Set(absenceEntries.value.map(e => e.entryDate))
+    const toAdd = (data.data || []).filter(h => !existing.has(h.date))
+    if (toAdd.length === 0) return
+    await Promise.all(toAdd.map(h => api.post('/absence', {
+      entry_date: h.date,
+      is_national_holiday: true,
+      holiday_name: `Hari Libur ${h.name}`,
+    })))
+    await fetchAbsenceEntries()
   } catch { /* ignore */ }
 }
 
