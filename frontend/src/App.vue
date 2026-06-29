@@ -182,7 +182,7 @@
       </main>
 
       <!-- Mobile Bottom Navigation -->
-      <nav class="flex-shrink-0 z-40 glass border-t-0">
+      <nav class="flex-shrink-0 z-40 glass border-t-0 safe-area-bottom">
         <div class="flex items-center justify-around h-16 max-w-4xl mx-auto">
           <router-link
             v-for="item in bottomNavItems"
