@@ -15,60 +15,6 @@
       </div>
     </div>
 
-    <!-- Upload Notifications -->
-    <div v-if="pendingUploads.length > 0" class="md:col-span-12 space-y-2.5">
-      <div
-        v-for="upload in pendingUploads"
-        :key="upload.id"
-        class="glass rounded-2xl p-3.5"
-        :class="{
-          'border-l-4 border-l-success': upload.status === 'done',
-          'border-l-4 border-l-danger': upload.status === 'error',
-          'border-l-4 border-l-accent': upload.status === 'uploading' || upload.status === 'pending',
-        }"
-      >
-        <div class="flex items-center justify-between mb-1.5">
-          <div class="flex items-center gap-2 min-w-0">
-            <svg v-if="upload.status === 'uploading'" class="w-4 h-4 text-accent animate-spin flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <svg v-else-if="upload.status === 'done'" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-success flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-            <svg v-else-if="upload.status === 'error'" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-danger flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-            <span class="text-sm font-medium truncate" :class="{
-              'text-accent': upload.status === 'uploading',
-              'text-success': upload.status === 'done',
-              'text-danger': upload.status === 'error',
-            }">{{ upload.file.name }}</span>
-          </div>
-          <button
-            v-if="upload.status === 'done' || upload.status === 'error'"
-            @click="store.removePendingUpload(upload.id)"
-            class="text-text-tertiary hover:text-text-primary flex-shrink-0 ml-2 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <div v-if="upload.status === 'uploading'" class="w-full bg-bg-primary/50 rounded-full h-1.5 overflow-hidden">
-          <div class="bg-gradient-to-r from-accent to-accent-hover h-1.5 rounded-full transition-all duration-200" :style="{ width: upload.progress + '%' }"></div>
-        </div>
-        <p class="text-xs mt-1" :class="{
-          'text-text-tertiary': upload.status === 'uploading',
-          'text-success': upload.status === 'done',
-          'text-danger': upload.status === 'error',
-        }">
-          <template v-if="upload.status === 'uploading'">Uploading... {{ upload.progress }}%</template>
-          <template v-else>{{ upload.message }}</template>
-        </p>
-      </div>
-    </div>
-
     <!-- Stats Cards -->
     <div class="md:col-span-4">
       <div class="glass glass-hover card-lift rounded-2xl p-5 text-center md:text-left relative overflow-hidden group">
@@ -222,7 +168,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useTimesheetStore } from '../stores/timesheetStore.js'
 import { useAuthStore } from '../stores/authStore.js'
 
@@ -230,7 +176,6 @@ const store = useTimesheetStore()
 const authStore = useAuthStore()
 const loading = computed(() => store.loading)
 const recentEntries = computed(() => store.entries.slice(0, 6))
-const pendingUploads = computed(() => store.pendingUploads)
 const totalEntries = computed(() => store.total)
 
 const todayHours = computed(() => {
@@ -249,14 +194,6 @@ function hasPendingTask(text) {
   if (!text) return false
   return text.split('\n').some(line => line.trim().startsWith('~'))
 }
-
-watch(pendingUploads, async (uploads) => {
-  for (const upload of uploads) {
-    if (upload.status === 'pending') {
-      await store.uploadPendingFile(upload.id)
-    }
-  }
-}, { deep: true, immediate: true })
 
 onMounted(() => {
   store.fetchEntries({ limit: 10 })

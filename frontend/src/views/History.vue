@@ -61,20 +61,18 @@
       <div class="grid grid-cols-2 gap-3 md:flex md:items-end md:gap-4">
         <div>
           <label class="block text-xs text-text-tertiary mb-1.5 font-medium">Dari</label>
-          <input
+          <DatePicker
             v-model="filters.date_from"
-            type="date"
-            class="form-input"
-            @change="applyFilters"
+            placeholder="Dari"
+            @update:model-value="applyFilters"
           />
         </div>
         <div>
           <label class="block text-xs text-text-tertiary mb-1.5 font-medium">Sampai</label>
-          <input
+          <DatePicker
             v-model="filters.date_to"
-            type="date"
-            class="form-input"
-            @change="applyFilters"
+            placeholder="Sampai"
+            @update:model-value="applyFilters"
           />
         </div>
         <div>
@@ -392,7 +390,7 @@
 
           <div>
             <label class="block text-xs font-medium text-text-secondary mb-1.5">Tanggal</label>
-            <input v-model="absenceForm.entry_date" type="date" class="form-input" />
+            <DatePicker v-model="absenceForm.entry_date" />
           </div>
 
           <div>
@@ -478,7 +476,7 @@
 
               <div>
                 <label class="block text-xs font-medium text-text-secondary mb-1.5">Tanggal</label>
-                <input v-model="editForm.tanggal" type="date" class="form-input" />
+                <DatePicker v-model="editForm.tanggal" />
               </div>
 
               <div class="grid grid-cols-2 gap-3">
@@ -798,11 +796,11 @@
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-xs text-text-tertiary mb-1.5 font-medium">Dari Tanggal</label>
-              <input v-model="exportForm.date_from" type="date" class="form-input" />
+              <DatePicker v-model="exportForm.date_from" placeholder="Dari" />
             </div>
             <div>
               <label class="block text-xs text-text-tertiary mb-1.5 font-medium">Sampai Tanggal</label>
-              <input v-model="exportForm.date_to" type="date" class="form-input" />
+              <DatePicker v-model="exportForm.date_to" placeholder="Sampai" />
             </div>
           </div>
 
@@ -1016,6 +1014,7 @@ import { reactive, computed, ref, onMounted, onUnmounted, watch, nextTick } from
 import { useTimesheetStore } from '../stores/timesheetStore.js'
 import { useAuthStore } from '../stores/authStore.js'
 import api from '../services/api.js'
+import DatePicker from '../components/Common/DatePicker.vue'
 
 const store = useTimesheetStore()
 const authStore = useAuthStore()

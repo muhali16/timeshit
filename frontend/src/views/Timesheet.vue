@@ -11,6 +11,60 @@
       </p>
     </div>
 
+    <!-- Upload Notifications -->
+    <div v-if="pendingUploads.length > 0" class="mb-5 md:mb-8 space-y-2.5">
+      <div
+        v-for="upload in pendingUploads"
+        :key="upload.id"
+        class="glass rounded-2xl p-3.5"
+        :class="{
+          'border-l-4 border-l-success': upload.status === 'done',
+          'border-l-4 border-l-danger': upload.status === 'error',
+          'border-l-4 border-l-accent': upload.status === 'uploading' || upload.status === 'pending',
+        }"
+      >
+        <div class="flex items-center justify-between mb-1.5">
+          <div class="flex items-center gap-2 min-w-0">
+            <svg v-if="upload.status === 'uploading'" class="w-4 h-4 text-accent animate-spin flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <svg v-else-if="upload.status === 'done'" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-success flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            <svg v-else-if="upload.status === 'error'" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-danger flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span class="text-sm font-medium truncate" :class="{
+              'text-accent': upload.status === 'uploading',
+              'text-success': upload.status === 'done',
+              'text-danger': upload.status === 'error',
+            }">{{ upload.file.name }}</span>
+          </div>
+          <button
+            v-if="upload.status === 'done' || upload.status === 'error'"
+            @click="store.removePendingUpload(upload.id)"
+            class="text-text-tertiary hover:text-text-primary flex-shrink-0 ml-2 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div v-if="upload.status === 'uploading'" class="w-full bg-bg-primary/50 rounded-full h-1.5 overflow-hidden">
+          <div class="bg-gradient-to-r from-accent to-accent-hover h-1.5 rounded-full transition-all duration-200" :style="{ width: upload.progress + '%' }"></div>
+        </div>
+        <p class="text-xs mt-1" :class="{
+          'text-text-tertiary': upload.status === 'uploading',
+          'text-success': upload.status === 'done',
+          'text-danger': upload.status === 'error',
+        }">
+          <template v-if="upload.status === 'uploading'">Uploading... {{ upload.progress }}%</template>
+          <template v-else>{{ upload.message }}</template>
+        </p>
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 md:gap-8">
       <div class="lg:col-span-2">
         <div class="glass rounded-2xl p-5 md:p-8 glow-orange">
@@ -20,12 +74,7 @@
             class="block text-xs md:text-sm font-medium text-text-secondary mb-1.5 md:mb-2"
             >Tanggal</label
           >
-          <input
-            v-model="form.tanggal"
-            type="date"
-            required
-            class="form-input"
-          />
+          <DatePicker v-model="form.tanggal" />
         </div>
 
         <div class="grid grid-cols-2 gap-3 md:gap-4">
@@ -249,6 +298,57 @@
             class="block text-xs md:text-sm font-medium text-text-secondary mb-1.5 md:mb-2"
             >Evidence (Opsional)</label
           >
+
+          <div v-if="existingEvidence.length > 0" class="mb-2.5 space-y-2">
+            <a
+              v-for="ev in existingEvidence"
+              :key="ev.id"
+              :href="ev.google_drive_url"
+              target="_blank"
+              rel="noopener"
+              class="flex items-center justify-between p-2.5 glass rounded-xl hover:border-accent/40 transition-colors"
+            >
+              <div class="flex items-center gap-2.5 min-w-0">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-4 h-4 text-success flex-shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                <div class="min-w-0">
+                  <p class="text-sm text-text-primary truncate">
+                    {{ ev.file_name }}
+                  </p>
+                  <p class="text-xs text-text-tertiary">
+                    {{ ev.file_size ? formatFileSize(ev.file_size) : "Tersimpan" }}
+                  </p>
+                </div>
+              </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-4 h-4 text-text-tertiary flex-shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                />
+              </svg>
+            </a>
+          </div>
+
           <div
             tabindex="0"
             @click="$refs.fileInput.click()"
@@ -379,7 +479,13 @@
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             ></path>
           </svg>
-          {{ submitting ? "Menyimpan..." : "Simpan Timesheet" }}
+          {{
+            submitting
+              ? "Menyimpan..."
+              : loadedEntryId
+                ? "Perbarui Timesheet"
+                : "Simpan Timesheet"
+          }}
         </button>
       </form>
         </div>
@@ -525,6 +631,7 @@ import { useTimesheetStore } from "../stores/timesheetStore.js";
 import { useAuthStore } from "../stores/authStore.js";
 import api from "../services/api.js";
 import { parseWrapUpText } from "../utils/textFilter.js";
+import DatePicker from "../components/Common/DatePicker.vue";
 
 const router = useRouter();
 const store = useTimesheetStore();
@@ -544,6 +651,20 @@ let parseToastTimer = null;
 
 // Toast notifications
 const toasts = ref([]);
+
+// Evidence upload queue
+const pendingUploads = computed(() => store.pendingUploads);
+watch(
+  pendingUploads,
+  async (uploads) => {
+    for (const upload of uploads) {
+      if (upload.status === "pending") {
+        await store.uploadPendingFile(upload.id);
+      }
+    }
+  },
+  { deep: true, immediate: true },
+);
 
 function autoResize(el) {
   if (!el) return;
@@ -657,6 +778,64 @@ watch(customLocation, (val) => {
     form.lokasi = val;
   }
 });
+
+function setLocation(lokasi) {
+  if (!lokasi) return;
+  form.lokasi = lokasi;
+  if (locationMode.value === "select") {
+    const known = settings.locations.find((l) => l.name === lokasi);
+    if (known) {
+      selectedLocation.value = lokasi;
+      customLocation.value = "";
+    } else {
+      selectedLocation.value = "__custom__";
+      customLocation.value = lokasi;
+    }
+  }
+}
+
+let skipDateLoad = false;
+const loadedEntryId = ref(null);
+const existingEvidence = ref([]);
+
+async function loadEntryForDate(date) {
+  if (!date) return;
+  loadedEntryId.value = null;
+  existingEvidence.value = [];
+  try {
+    const res = await store.fetchEntries({
+      date_from: date,
+      date_to: date,
+      limit: 1,
+    });
+    const entry = res.data?.[0];
+    if (entry) {
+      loadedEntryId.value = entry.id;
+      existingEvidence.value = entry.evidence || [];
+      form.jam_mulai = entry.jam_mulai || settings.defaultStartTime || "";
+      form.jam_selesai = entry.jam_selesai || settings.defaultEndTime || "";
+      form.rincian_tugas = entry.rincian_tugas || "";
+      setLocation(entry.lokasi);
+    } else {
+      form.jam_mulai = settings.defaultStartTime || "";
+      form.jam_selesai = settings.defaultEndTime || "";
+      form.rincian_tugas = "";
+    }
+  } catch {
+    // ignore
+  }
+}
+
+watch(
+  () => form.tanggal,
+  (date) => {
+    if (skipDateLoad) {
+      skipDateLoad = false;
+      return;
+    }
+    loadEntryForDate(date);
+  },
+);
 
 watch(
   () => form.rincian_tugas,
@@ -803,7 +982,9 @@ function undoParse() {
 }
 
 function resetForm() {
-  form.tanggal = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0];
+  if (form.tanggal !== today) skipDateLoad = true;
+  form.tanggal = today;
   form.jam_mulai = settings.defaultStartTime || "";
   form.jam_selesai = settings.defaultEndTime || "";
   form.lokasi = "";
@@ -812,6 +993,8 @@ function resetForm() {
   selectedLocation.value = "";
   customLocation.value = "";
   error.value = null;
+  loadedEntryId.value = null;
+  existingEvidence.value = [];
 
   if (settings.locations.length === 1) {
     form.lokasi = settings.locations[0].name;
@@ -843,17 +1026,26 @@ async function handleSubmit() {
       lokasi: form.lokasi,
       rincian_tugas: form.rincian_tugas,
     };
-    const response = await store.createEntry(payload);
-    const timesheetId = response.data?.id;
+    const isUpdate = !!loadedEntryId.value;
+    const response = isUpdate
+      ? await store.updateEntry(loadedEntryId.value, payload)
+      : await store.createEntry(payload);
+    const timesheetId = response.data?.id || loadedEntryId.value;
     if (selectedFiles.value.length > 0 && timesheetId) {
       store.addPendingUpload(timesheetId, selectedFiles.value);
       showToast(
-        `Timesheet tersimpan! Upload ${selectedFiles.value.length} evidence berjalan di background...`,
+        `Timesheet ${isUpdate ? "diperbarui" : "tersimpan"}! Upload ${selectedFiles.value.length} evidence berjalan di background...`,
         "info",
         4000,
       );
     } else {
-      showToast("Timesheet berhasil disimpan", "success", 3000);
+      showToast(
+        isUpdate
+          ? "Timesheet berhasil diperbarui"
+          : "Timesheet berhasil disimpan",
+        "success",
+        3000,
+      );
     }
     resetForm();
   } catch (err) {
