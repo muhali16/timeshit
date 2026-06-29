@@ -83,12 +83,7 @@
               class="block text-xs md:text-sm font-medium text-text-secondary mb-1.5 md:mb-2"
               >Jam Mulai</label
             >
-            <input
-              v-model="form.jam_mulai"
-              type="time"
-              required
-              class="form-input"
-            />
+            <TimePicker v-model="form.jam_mulai" />
             <p
               v-if="settings.defaultStartTime"
               class="text-text-tertiary text-[10px] md:text-xs mt-1 leading-snug"
@@ -101,12 +96,7 @@
               class="block text-xs md:text-sm font-medium text-text-secondary mb-1.5 md:mb-2"
               >Jam Selesai</label
             >
-            <input
-              v-model="form.jam_selesai"
-              type="time"
-              required
-              class="form-input"
-            />
+            <TimePicker v-model="form.jam_selesai" />
             <p
               v-if="settings.defaultEndTime"
               class="text-text-tertiary text-[10px] md:text-xs mt-1 leading-snug"
@@ -701,6 +691,7 @@ import {
   renderWrapup,
 } from "../utils/report.js";
 import DatePicker from "../components/Common/DatePicker.vue";
+import TimePicker from "../components/Common/TimePicker.vue";
 import Select from "../components/Common/Select.vue";
 
 const router = useRouter();

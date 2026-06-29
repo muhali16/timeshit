@@ -86,13 +86,13 @@
       </div>
 
       <!-- Sub Navigation Tabs -->
-      <div class="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+      <div class="grid grid-cols-4 gap-1 p-1 rounded-2xl bg-white/5 md:flex md:gap-1.5 md:bg-transparent md:p-0">
         <button
           v-for="tab in settingTabs"
           :key="tab.key"
           @click="activeTab = tab.key"
           :class="[
-            'px-4 py-2 rounded-xl text-xs md:text-sm font-medium whitespace-nowrap transition-all',
+            'px-2 py-2 rounded-xl text-[11px] md:text-sm font-medium text-center leading-tight transition-all md:px-4 md:whitespace-nowrap',
             activeTab === tab.key
               ? 'bg-accent/15 text-accent'
               : 'text-text-tertiary hover:text-text-primary hover:bg-white/5',
@@ -316,22 +316,14 @@
                 class="block text-xs font-medium text-text-secondary mb-1.5"
                 >Jam Mulai</label
               >
-              <input
-                v-model="form.defaultStartTime"
-                type="time"
-                class="form-input"
-              />
+              <TimePicker v-model="form.defaultStartTime" />
             </div>
             <div>
               <label
                 class="block text-xs font-medium text-text-secondary mb-1.5"
                 >Jam Selesai</label
               >
-              <input
-                v-model="form.defaultEndTime"
-                type="time"
-                class="form-input"
-              />
+              <TimePicker v-model="form.defaultEndTime" />
             </div>
             <div class="col-span-2 md:col-span-1">
               <label
@@ -1616,6 +1608,7 @@ import { parseWrapUpText } from "../utils/textFilter.js";
 import { DEFAULT_REPORT_CONFIG } from "../utils/report.js";
 import { usePWAInstall } from "../composables/usePWAInstall.js";
 import Select from "../components/Common/Select.vue";
+import TimePicker from "../components/Common/TimePicker.vue";
 
 const router = useRouter();
 const authStore = useAuthStore();
