@@ -201,7 +201,7 @@
     </div>
 
     <!-- Desktop Layout: Floating Sidebar + Content (Authenticated Users) -->
-    <div v-else-if="!isMobile && authStore.isLoggedIn" class="flex min-h-screen">
+    <div v-else-if="!isMobile && authStore.isLoggedIn" class="flex h-screen overflow-hidden">
       <!-- Floating Sidebar -->
       <aside
         class="w-[72px] xl:w-20 flex-shrink-0 p-4 flex flex-col items-center gap-4 fixed h-screen z-40"
