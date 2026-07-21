@@ -359,15 +359,17 @@
           >
 
           <div v-if="existingEvidence.length > 0" class="mb-2.5 space-y-2">
-            <a
+            <div
               v-for="ev in existingEvidence"
               :key="ev.id"
-              :href="ev.google_drive_url"
-              target="_blank"
-              rel="noopener"
               class="flex items-center justify-between p-2.5 glass rounded-xl hover:border-accent/40 transition-colors"
             >
-              <div class="flex items-center gap-2.5 min-w-0">
+              <a
+                :href="ev.google_drive_url"
+                target="_blank"
+                rel="noopener"
+                class="flex items-center gap-2.5 min-w-0 flex-1"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="w-4 h-4 text-success flex-shrink-0"
@@ -390,22 +392,23 @@
                     {{ ev.file_size ? formatFileSize(ev.file_size) : "Tersimpan" }}
                   </p>
                 </div>
-              </div>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-4 h-4 text-text-tertiary flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
+              </a>
+              <button
+                type="button"
+                @click="deleteEvidence(ev)"
+                :disabled="deletingEvidence === ev.id"
+                class="p-1.5 text-text-tertiary hover:text-danger hover:bg-danger/10 rounded-lg flex-shrink-0 ml-2 transition-all active:scale-90 disabled:opacity-50"
+                aria-label="Hapus evidence"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                />
-              </svg>
-            </a>
+                <svg v-if="deletingEvidence === ev.id" class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div
@@ -678,7 +681,7 @@ import {
   watch,
   nextTick,
 } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import { useTimesheetStore } from "../stores/timesheetStore.js";
 import { useAuthStore } from "../stores/authStore.js";
 import api from "../services/api.js";
@@ -694,7 +697,7 @@ import DatePicker from "../components/Common/DatePicker.vue";
 import TimePicker from "../components/Common/TimePicker.vue";
 import Select from "../components/Common/Select.vue";
 
-const router = useRouter();
+const route = useRoute();
 const store = useTimesheetStore();
 const authStore = useAuthStore();
 const submitting = ref(false);
@@ -995,6 +998,26 @@ function setLocation(lokasi) {
 let skipDateLoad = false;
 const loadedEntryId = ref(null);
 const existingEvidence = ref([]);
+const deletingEvidence = ref(null);
+
+async function deleteEvidence(ev) {
+  // Irreversible: the backend removes the file from Google Drive too.
+  if (!confirm(`Hapus "${ev.file_name}"? File juga dihapus dari Google Drive.`))
+    return;
+  deletingEvidence.value = ev.id;
+  try {
+    await store.deleteEvidence(loadedEntryId.value, ev.id);
+    existingEvidence.value = existingEvidence.value.filter((e) => e.id !== ev.id);
+    showToast("Evidence dihapus", "success", 2500);
+  } catch (err) {
+    showToast(
+      err.response?.data?.message || "Gagal menghapus evidence",
+      "error",
+    );
+  } finally {
+    deletingEvidence.value = null;
+  }
+}
 
 async function loadEntryForDate(date) {
   if (!date) return;
@@ -1076,6 +1099,12 @@ function applySettings() {
 
 onMounted(async () => {
   suppressSave = true;
+  // ?date=YYYY-MM-DD — History links here to edit an existing day.
+  const requestedDate = route.query.date;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(requestedDate || "")) {
+    skipDateLoad = true; // the watcher would otherwise re-fetch the same day
+    form.tanggal = requestedDate;
+  }
   if (authStore.user) {
     applySettings();
   } else {
