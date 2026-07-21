@@ -940,32 +940,17 @@
             </span>
           </div>
 
-          <p class="text-text-tertiary text-xs mb-4 leading-relaxed">
-            Set folder Google Drive tempat evidence disimpan. File akan disimpan
-            dalam subfolder per bulan.
-          </p>
-
-          <div class="flex gap-2">
-            <input
-              v-model="form.googleDriveFolderId"
-              type="text"
-              placeholder="Paste folder ID di sini"
-              class="form-input flex-1"
-            />
-            <button
-              @click="verifyFolder"
-              :disabled="verifying || !form.googleDriveFolderId"
-              class="px-4 py-2 btn-primary rounded-xl text-sm font-medium disabled:opacity-50 flex-shrink-0"
-            >
-              {{ verifying ? "Verif..." : "Verifikasi" }}
-            </button>
-          </div>
-          <p
-            v-if="folderMessage"
-            class="mt-2 text-xs"
-            :class="folderSuccess ? 'text-success' : 'text-danger'"
-          >
-            {{ folderMessage }}
+          <p class="text-text-tertiary text-xs leading-relaxed">
+            <template v-if="isConnected">
+              Evidence disimpan otomatis ke folder
+              <span class="font-medium text-text-secondary">TimeShit</span> di My
+              Drive kamu, dipisah per bulan. Folder dibuat sendiri oleh aplikasi
+              saat upload pertama.
+            </template>
+            <template v-else>
+              Login ulang dengan Google untuk menghubungkan Drive. Tanpa itu,
+              upload evidence akan gagal.
+            </template>
           </p>
         </div>
 
@@ -1615,7 +1600,6 @@ const authStore = useAuthStore();
 const pwa = usePWAInstall();
 
 const saving = ref(false);
-const verifying = ref(false);
 const folderMessage = ref("");
 const folderSuccess = ref(false);
 const tzOpen = ref(false);
@@ -1752,9 +1736,7 @@ const selectedTzLabel = computed(() => {
   );
 });
 
-const isConnected = computed(() => {
-  return !!form.value.googleDriveFolderId;
-});
+const isConnected = computed(() => !!authStore.user?.hasGoogleToken);
 
 const historyPeriodOptions = [
   { value: "all", label: "Semua" },
@@ -1804,7 +1786,6 @@ const customPeriodPreview = computed(() => {
 const form = ref({
   name: "",
   timezone: "Asia/Jakarta",
-  googleDriveFolderId: "",
   notificationEnabled: true,
   defaultStartTime: "",
   defaultEndTime: "",
@@ -1916,7 +1897,6 @@ onMounted(() => {
   if (user) {
     form.value.name = user.name || "";
     form.value.timezone = user.timezone || "Asia/Jakarta";
-    form.value.googleDriveFolderId = user.googleDriveFolderId || "";
     form.value.notificationEnabled = user.notificationEnabled !== false;
     form.value.defaultStartTime = user.defaultStartTime || "";
     form.value.defaultEndTime = user.defaultEndTime || "";
@@ -1973,28 +1953,6 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener("click", onClickOutside);
 });
-
-async function verifyFolder() {
-  verifying.value = true;
-  folderMessage.value = "";
-  try {
-    const { data } = await api.post("/settings/verify-folder", {
-      folderId: form.value.googleDriveFolderId,
-    });
-    folderMessage.value = data.message;
-    folderSuccess.value = true;
-    authStore.user = {
-      ...authStore.user,
-      googleDriveFolderId: form.value.googleDriveFolderId,
-    };
-  } catch (err) {
-    folderMessage.value =
-      err.response?.data?.message || "Gagal memverifikasi folder";
-    folderSuccess.value = false;
-  } finally {
-    verifying.value = false;
-  }
-}
 
 async function saveSettings() {
   saving.value = true;

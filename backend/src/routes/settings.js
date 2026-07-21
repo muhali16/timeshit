@@ -32,7 +32,6 @@ async function settingsRoutes(fastify, options) {
           timezone: { type: 'string' },
           notificationEnabled: { type: 'boolean' },
           notificationTime: { type: 'string' },
-          googleDriveFolderId: { type: 'string' },
           defaultStartTime: { type: 'string' },
           defaultEndTime: { type: 'string' },
           defaultBreakMinutes: { type: 'integer' },
@@ -83,31 +82,6 @@ async function settingsRoutes(fastify, options) {
     handler: settingsController.update.bind(settingsController),
   });
 
-  fastify.post('/settings/verify-folder', {
-    preHandler: [authMiddleware],
-    schema: {
-      tags: ['Settings'],
-      summary: 'Verify and save Google Drive folder ID',
-      body: {
-        type: 'object',
-        required: ['folderId'],
-        properties: {
-          folderId: { type: 'string' },
-        },
-      },
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            success: { type: 'boolean' },
-            message: { type: 'string' },
-            data: { type: 'object', additionalProperties: true },
-          },
-        },
-      },
-    },
-    handler: settingsController.verifyFolder.bind(settingsController),
-  });
 }
 
 module.exports = settingsRoutes;

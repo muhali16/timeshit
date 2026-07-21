@@ -147,7 +147,7 @@
 
       <!-- Warning Banner -->
       <div
-        v-if="authStore.isLoggedIn && !authStore.hasFolderId"
+        v-if="authStore.isLoggedIn && !authStore.hasGoogleToken"
         class="flex-shrink-0 bg-warning/10 border-b border-warning/20 px-4 py-2.5"
       >
         <div class="max-w-4xl mx-auto flex items-center gap-2">
@@ -166,9 +166,9 @@
             />
           </svg>
           <p class="text-xs text-warning">
-            Google Drive folder belum diatur.
+            Google Drive belum terhubung.
             <router-link to="/settings" class="underline font-semibold"
-              >Atur di Settings</router-link
+              >Lihat di Settings</router-link
             >
           </p>
         </div>
@@ -328,7 +328,7 @@
       >
         <!-- Desktop Warning Banner -->
         <div
-          v-if="authStore.isLoggedIn && !authStore.hasFolderId"
+          v-if="authStore.isLoggedIn && !authStore.hasGoogleToken"
           class="hidden md:flex items-center gap-3 glass rounded-2xl px-5 py-3.5 mb-6 border-l-4 border-l-warning"
         >
           <svg
@@ -346,7 +346,7 @@
             />
           </svg>
           <p class="text-sm text-warning">
-            Google Drive folder belum diatur.
+            Google Drive belum terhubung.
             <router-link
               to="/settings"
               class="underline font-semibold hover:text-text-primary transition-colors"

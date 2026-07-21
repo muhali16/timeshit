@@ -106,20 +106,17 @@ class TimesheetController {
       const formatted = timesheetService.formatTimesheetList([created]);
 
       const userRows = await db
-        .select({
-          folderId: users.googleDriveFolderId,
-        })
+        .select({ refreshToken: users.googleRefreshToken })
         .from(users)
         .where(eq(users.id, req.userId));
-      const folderId = userRows[0]?.googleDriveFolderId;
 
       return reply.status(201).send({
         success: true,
         message: "Timesheet berhasil ditambahkan",
         data: formatted[0],
-        warnings: !folderId
+        warnings: !userRows[0]?.refreshToken
           ? [
-              "Google Drive folder belum di-set. Upload evidence akan gagal sampai folder diatur di Settings.",
+              "Google Drive belum terhubung. Upload evidence akan gagal sampai login ulang dengan Google.",
             ]
           : [],
       });
@@ -371,27 +368,15 @@ class TimesheetController {
       }
 
       const userRows = await db
-        .select({
-          folderId: users.googleDriveFolderId,
-          refreshToken: users.googleRefreshToken,
-        })
+        .select({ refreshToken: users.googleRefreshToken })
         .from(users)
         .where(eq(users.id, req.userId));
-      const user = userRows[0];
 
-      if (!user?.refreshToken) {
+      if (!userRows[0]?.refreshToken) {
         return reply.status(400).send({
           success: false,
           message:
             "Google Drive belum terhubung. Login ulang dengan Google untuk menghubungkan.",
-        });
-      }
-
-      if (!user?.folderId) {
-        return reply.status(400).send({
-          success: false,
-          message:
-            "Google Drive folder belum di-set. Atur folder ID di halaman Settings.",
         });
       }
 

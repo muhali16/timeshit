@@ -60,14 +60,13 @@ class SettingsController {
 
   async update(req, reply) {
     try {
-      const { name, timezone, notificationEnabled, notificationTime, googleDriveFolderId, defaultStartTime, defaultEndTime, defaultBreakMinutes, locations, textFilter, reportConfig, defaultHistoryPeriod, defaultHistoryCustom } = req.body;
+      const { name, timezone, notificationEnabled, notificationTime, defaultStartTime, defaultEndTime, defaultBreakMinutes, locations, textFilter, reportConfig, defaultHistoryPeriod, defaultHistoryCustom } = req.body;
 
       const updateData = { updatedAt: new Date() };
       if (name !== undefined) updateData.name = name;
       if (timezone !== undefined) updateData.timezone = timezone;
       if (notificationEnabled !== undefined) updateData.notificationEnabled = notificationEnabled;
       if (notificationTime !== undefined) updateData.notificationTime = notificationTime;
-      if (googleDriveFolderId !== undefined) updateData.googleDriveFolderId = googleDriveFolderId;
       if (defaultStartTime !== undefined) updateData.defaultStartTime = defaultStartTime || null;
       if (defaultEndTime !== undefined) updateData.defaultEndTime = defaultEndTime || null;
       if (defaultBreakMinutes !== undefined) {
@@ -262,91 +261,6 @@ class SettingsController {
     }
   }
 
-  async verifyFolder(req, reply) {
-    try {
-      const { folderId } = req.body;
-
-      if (!folderId) {
-        return reply.status(400).send({
-          success: false,
-          message: 'folderId wajib diisi',
-        });
-      }
-
-      const userRows = await db.select().from(users).where(eq(users.id, req.userId));
-      const user = userRows[0];
-
-      if (!user?.googleRefreshToken) {
-        return reply.status(400).send({
-          success: false,
-          message: 'Google Drive belum terhubung. Login ulang dengan Google untuk menghubungkan.',
-        });
-      }
-
-      const oAuth2Client = new google.auth.OAuth2(
-        process.env.GOOGLE_OAUTH_CLIENT_ID,
-        process.env.GOOGLE_OAUTH_CLIENT_SECRET
-      );
-      oAuth2Client.setCredentials({ refresh_token: user.googleRefreshToken });
-
-      const drive = google.drive({ version: 'v3', auth: oAuth2Client });
-
-      let folderInfo;
-      try {
-        folderInfo = await drive.files.get({
-          fileId: folderId,
-          fields: 'id, name, mimeType, capabilities',
-          supportsAllDrives: true,
-          includeItemsFromAllDrives: true,
-        });
-      } catch (err) {
-        req.log.error({ err, folderId }, 'Google Drive verify folder failed');
-        if (err.code === 404) {
-          return reply.status(404).send({
-            success: false,
-            message: 'Folder tidak ditemukan. Pastikan folder ada di Google Drive akun Anda dan coba gunakan folder di My Drive Anda sendiri.',
-            detail: err.errors?.[0]?.message || err.message,
-          });
-        }
-        if (err.code === 403) {
-          return reply.status(403).send({
-            success: false,
-            message: 'Tidak ada akses ke folder ini. Share folder tersebut ke email akun Google Anda yang dipakai login.',
-            detail: err.errors?.[0]?.message || err.message,
-          });
-        }
-        throw err;
-      }
-
-      if (folderInfo.data.mimeType !== 'application/vnd.google-apps.folder') {
-        return reply.status(400).send({
-          success: false,
-          message: 'ID tersebut bukan folder',
-        });
-      }
-
-      await db.update(users).set({
-        googleDriveFolderId: folderId,
-        updatedAt: new Date(),
-      }).where(eq(users.id, req.userId));
-
-      return reply.send({
-        success: true,
-        message: `Folder "${folderInfo.data.name}" berhasil diverifikasi`,
-        data: {
-          folderId: folderInfo.data.id,
-          folderName: folderInfo.data.name,
-        },
-      });
-    } catch (err) {
-      req.log.error(err);
-      return reply.status(500).send({
-        success: false,
-        message: 'Gagal memverifikasi folder',
-        error: err.message,
-      });
-    }
-  }
 }
 
 module.exports = new SettingsController();
