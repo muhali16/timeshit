@@ -76,20 +76,6 @@ export const useTimesheetStore = defineStore('timesheet', {
       }
     },
 
-    async fetchEntry(id) {
-      this.loading = true
-      this.error = null
-      try {
-        const { data } = await api.get(`/timesheet/${id}`)
-        return data
-      } catch (err) {
-        this.error = err.response?.data?.message || err.message
-        throw err
-      } finally {
-        this.loading = false
-      }
-    },
-
     async deleteEvidence(timesheetId, evidenceId) {
       this.error = null
       try {

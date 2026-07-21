@@ -33,7 +33,6 @@ export const useAuthStore = defineStore('auth', {
 
   getters: {
     isLoggedIn: (state) => !!state.user,
-    hasFolderId: (state) => !!state.user?.googleDriveFolderId,
     hasGoogleToken: (state) => !!state.user?.hasGoogleToken,
   },
 

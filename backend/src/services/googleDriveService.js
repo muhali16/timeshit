@@ -3,6 +3,8 @@ const { db } = require('../database/connection');
 const { users } = require('../database/schema');
 const { eq } = require('drizzle-orm');
 
+const ROOT_FOLDER_NAME = 'TimeShit';
+
 class GoogleDriveService {
   async createDriveClientForUser(userId) {
     const userRows = await db.select().from(users).where(eq(users.id, userId));
@@ -14,22 +16,49 @@ class GoogleDriveService {
       );
     }
 
-    if (!user.googleDriveFolderId) {
-      throw new Error(
-        'Google Drive folder belum di-set. Atur folder ID di halaman Settings.'
-      );
-    }
-
     const oAuth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_OAUTH_CLIENT_ID,
       process.env.GOOGLE_OAUTH_CLIENT_SECRET
     );
     oAuth2Client.setCredentials({ refresh_token: user.googleRefreshToken });
 
-    return {
-      drive: google.drive({ version: 'v3', auth: oAuth2Client }),
-      parentFolderId: user.googleDriveFolderId,
-    };
+    return { drive: google.drive({ version: 'v3', auth: oAuth2Client }), user };
+  }
+
+  // The `drive.file` OAuth scope only grants access to files this app created,
+  // so the root folder must be app-created rather than pasted in by the user.
+  // A stored ID can also go stale (folder trashed, or created under an older,
+  // broader scope) — in that case fall through and make a fresh one.
+  async getOrCreateRootFolder(drive, userId, storedId) {
+    if (storedId && (await this.isUsableFolder(drive, storedId))) {
+      return storedId;
+    }
+
+    const created = await drive.files.create({
+      requestBody: {
+        name: ROOT_FOLDER_NAME,
+        mimeType: 'application/vnd.google-apps.folder',
+      },
+      fields: 'id',
+    });
+
+    await db
+      .update(users)
+      .set({ googleDriveFolderId: created.data.id, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+
+    return created.data.id;
+  }
+
+  // ponytail: one extra files.get per upload; cache in-process if it ever shows up in latency
+  async isUsableFolder(drive, folderId) {
+    try {
+      const { data } = await drive.files.get({ fileId: folderId, fields: 'trashed' });
+      return !data.trashed;
+    } catch (err) {
+      if (err.code === 404 || err.code === 403) return false;
+      throw err;
+    }
   }
 
   getMonthlyFolderPath(dateStr) {
@@ -45,7 +74,12 @@ class GoogleDriveService {
   }
 
   async uploadFile({ readableStream, fileName, mimeType, entryDate, fileIndex, userId }) {
-    const { drive, parentFolderId } = await this.createDriveClientForUser(userId);
+    const { drive, user } = await this.createDriveClientForUser(userId);
+    const parentFolderId = await this.getOrCreateRootFolder(
+      drive,
+      userId,
+      user.googleDriveFolderId
+    );
 
     const subFolderName = this.getMonthlyFolderPath(entryDate);
     let parentId;
